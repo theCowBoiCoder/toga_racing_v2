@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{{ asset('css/theme.css') }}">
 </head>
 <body>
-<header class="header"><a class="brand" href="{{ route('home') }}"><img src="{{ asset('images/logo.png') }}" alt=""><span>TOGA RACING</span></a><button class="menu" aria-label="Toggle menu">☰</button><nav><a href="{{ route('gallery') }}">Gallery</a><a href="{{ route('news') }}">News</a><a href="{{ route('join') }}">Join us</a><a href="{{ route('partners') }}">Partners</a><a class="social" href="https://www.youtube.com/@TogaRacing">YouTube ↗</a></nav></header>
+<header class="header"><a class="brand" href="{{ route('home') }}"><img src="{{ asset('images/logo.png') }}" alt=""><span>TOGA RACING</span></a><button class="menu" aria-label="Toggle menu">☰</button><nav><a href="{{ route('gallery') }}">Gallery</a><a href="{{ route('news') }}">News</a><a href="{{ route('join') }}">Join us</a><a href="{{ route('partners') }}">Become a Partner</a><a class="social" href="https://www.youtube.com/@TogaRacing">YouTube ↗</a></nav></header>
 
 @if($page === 'home')
 <main>
