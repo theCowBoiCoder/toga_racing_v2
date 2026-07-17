@@ -1,0 +1,1 @@
+<div class="news-grid">@foreach($articles as $a)<a class="news-card" href="{{ route('article',$a['slug']) }}"><span>{{ $a['date'] }} · TEAM NEWS</span><h3>{{ $a['title'] }}</h3><p>{{ $a['excerpt'] }}</p><b>READ STORY →</b></a>@endforeach</div>

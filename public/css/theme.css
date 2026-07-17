@@ -1,0 +1,480 @@
+:root {
+    --orange: #EDEDED;
+    --ink: #1A0B4C;
+    --panel: #26145c;
+    --muted: #c9c3da;
+}
+
+.button {
+    color: #1A0B4C;
+}
+
+.hero-tagline {
+    margin: 0 0 8px;
+    color: #EDEDED !important;
+    font-size: 13px !important;
+    font-weight: 900;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+}
+
+.hero .hero-title {
+    white-space: nowrap;
+}
+
+@media (max-width: 650px) {
+    .hero .hero-title {
+        font-size: clamp(34px, 11vw, 44px);
+    }
+}
+
+.button.ghost {
+    color: #EDEDED;
+}
+
+.header {
+    background: rgba(26, 11, 76, .78);
+}
+
+.brand {
+    overflow: hidden;
+}
+
+.brand img {
+    width: 58px;
+    height: 58px;
+    transform: scale(1.55);
+    clip-path: inset(14% 8% 20% 8%);
+}
+
+.hero {
+    background:
+        linear-gradient(90deg, #1A0B4C 5%, rgba(26, 11, 76, .86) 43%, rgba(26, 11, 76, .24)),
+        linear-gradient(0deg, #1A0B4C, transparent 55%),
+        url('/images/hero-racing.png') center/cover;
+}
+
+.telemetry {
+    background: rgba(26, 11, 76, .76);
+}
+
+.driver-image {
+    background: linear-gradient(135deg, #352173, #1A0B4C);
+}
+
+.statement {
+    background: linear-gradient(90deg, rgba(26, 11, 76, .94), rgba(26, 11, 76, .62)), url('/images/feature-racing.png') center/cover;
+}
+
+.news-card {
+    background: radial-gradient(circle at top right, rgba(237, 237, 237, .12), transparent 48%), var(--panel);
+}
+
+.page-hero {
+    background: radial-gradient(circle at 80% 10%, rgba(237, 237, 237, .12), transparent 33%), #1A0B4C;
+}
+
+.profile-photo,
+.gallery figure {
+    background: #26145c;
+}
+
+footer {
+    background: #120733;
+}
+
+@media (max-width: 650px) {
+    .header nav {
+        background: rgba(26, 11, 76, .98);
+    }
+}
+
+.instagram-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.instagram-card {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border: 1px solid rgba(237, 237, 237, .16);
+    border-radius: 14px;
+    background: #120733;
+    color: #EDEDED;
+}
+
+.instagram-card img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform .4s ease;
+    transform: none;
+}
+
+.instagram-card:hover img {
+    transform: none;
+}
+
+.instagram-grid-alternate {
+    margin-top: 16px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.instagram-grid-alternate:empty {
+    display: none;
+}
+
+.instagram-card-alternate {
+    width: 100%;
+}
+
+.instagram-card span {
+    position: absolute;
+    z-index: 2;
+    inset: auto 0 0;
+    display: grid;
+    gap: 7px;
+    padding: 50px 18px 18px;
+    background: linear-gradient(transparent, rgba(26, 11, 76, .95));
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.instagram-card b {
+    font-size: 10px;
+    letter-spacing: .08em;
+}
+
+.instagram-empty {
+    grid-column: 1 / -1;
+    min-height: 230px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 30px;
+    border: 1px solid rgba(237, 237, 237, .16);
+    border-radius: 14px;
+    background: radial-gradient(circle at top right, rgba(237, 237, 237, .12), transparent 45%), #26145c;
+    color: #EDEDED;
+    text-align: center;
+    text-decoration: none;
+}
+
+.instagram-empty b {
+    font-size: 24px;
+}
+
+.instagram-empty span {
+    color: var(--muted);
+}
+
+.instagram-empty strong {
+    font-size: 10px;
+    letter-spacing: .12em;
+}
+
+@media (max-width: 950px) {
+    .instagram-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 650px) {
+    .instagram-grid,
+    .instagram-grid-alternate { grid-template-columns: 1fr; }
+}
+
+.sim-grid,
+.pathways {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.sim-card {
+    position: relative;
+    min-height: 480px;
+    overflow: hidden;
+    border: 1px solid rgba(237, 237, 237, .16);
+    border-radius: 18px;
+    background-position: center;
+    background-size: cover;
+}
+
+.sim-card.iracing { background-image: url('/images/gallery/race-2.jpg'); }
+.sim-card.lmu { background-image: url('/images/gallery/race-6.jpg'); }
+
+.sim-card::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+    background: linear-gradient(0deg, #1A0B4C 2%, rgba(26, 11, 76, .55) 55%, rgba(26, 11, 76, .1));
+}
+
+.sim-card > div {
+    position: absolute;
+    z-index: 1;
+    inset: auto 0 0;
+    padding: 32px;
+}
+
+.sim-card span {
+    color: #EDEDED;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .18em;
+}
+
+.sim-card h3 {
+    margin: 10px 0;
+    font-size: clamp(30px, 3.5vw, 52px);
+    line-height: .95;
+}
+
+.sim-card p {
+    max-width: 580px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.sim-card a {
+    color: #EDEDED;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .12em;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.pathways {
+    max-width: 1500px;
+}
+
+.path-card {
+    padding: clamp(28px, 4vw, 58px);
+    border: 1px solid rgba(237, 237, 237, .14);
+    border-radius: 18px;
+    background: radial-gradient(circle at top right, rgba(237, 237, 237, .1), transparent 42%), var(--panel);
+}
+
+.path-card h2 {
+    margin: 15px 0;
+    font-size: clamp(30px, 3.5vw, 50px);
+    line-height: 1;
+}
+
+.path-card p,
+.path-card li {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.path-card ul {
+    margin: 24px 0 30px;
+    padding-left: 19px;
+}
+
+.form-hero {
+    padding: 190px max(5vw, 28px) 90px;
+    background: radial-gradient(circle at 80% 10%, rgba(237, 237, 237, .12), transparent 33%), #1A0B4C;
+}
+
+.form-hero h1,
+.thanks h1 {
+    max-width: 1000px;
+    margin: 18px 0;
+    font-size: clamp(55px, 7vw, 100px);
+    line-height: .9;
+    letter-spacing: -.06em;
+}
+
+.form-hero h1 em,
+.thanks h1 em {
+    color: #EDEDED;
+    font-style: normal;
+}
+
+.form-hero p {
+    max-width: 650px;
+    color: var(--muted);
+    line-height: 1.8;
+}
+
+.form-shell {
+    display: grid;
+    grid-template-columns: minmax(260px, .7fr) minmax(0, 1.3fr);
+    gap: clamp(40px, 7vw, 100px);
+    max-width: 1350px;
+    margin: auto;
+    padding: 90px max(5vw, 28px) 120px;
+}
+
+.form-intro {
+    align-self: start;
+    position: sticky;
+    top: 40px;
+}
+
+.form-intro h2 {
+    font-size: clamp(28px, 3vw, 43px);
+}
+
+.form-intro > p,
+.form-note span {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.form-note {
+    display: grid;
+    gap: 8px;
+    margin-top: 28px;
+    padding: 22px;
+    border-left: 3px solid #EDEDED;
+    background: rgba(237, 237, 237, .06);
+}
+
+.form-note b {
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.enquiry-form {
+    display: grid;
+    gap: 22px;
+}
+
+.field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.enquiry-form label,
+.enquiry-form legend {
+    display: grid;
+    gap: 9px;
+    color: #EDEDED;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.enquiry-form label small {
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.enquiry-form input,
+.enquiry-form textarea,
+.enquiry-form select {
+    width: 100%;
+    border: 1px solid rgba(237, 237, 237, .2);
+    border-radius: 8px;
+    outline: none;
+    background: rgba(237, 237, 237, .055);
+    padding: 14px 15px;
+    color: #EDEDED;
+    font: 500 14px Montserrat, sans-serif;
+    text-transform: none;
+}
+
+.enquiry-form select option { color: #1A0B4C; }
+.enquiry-form textarea { resize: vertical; line-height: 1.6; }
+.enquiry-form input:focus,
+.enquiry-form textarea:focus,
+.enquiry-form select:focus { border-color: #EDEDED; }
+
+.enquiry-form fieldset {
+    display: flex;
+    gap: 22px;
+    margin: 0;
+    padding: 18px;
+    border: 1px solid rgba(237, 237, 237, .15);
+    border-radius: 8px;
+}
+
+.enquiry-form .check {
+    display: flex;
+    align-items: center;
+}
+
+.enquiry-form .check input {
+    width: auto;
+    accent-color: #EDEDED;
+}
+
+.enquiry-form .button {
+    justify-self: start;
+    border: 0;
+    cursor: pointer;
+}
+
+.form-trap {
+    position: absolute !important;
+    left: -9999px !important;
+}
+
+.form-errors {
+    border: 1px solid #ff8c8c;
+    border-radius: 8px;
+    background: rgba(255, 70, 70, .1);
+    padding: 18px;
+    color: #ffd5d5;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.form-errors ul { margin-bottom: 0; }
+
+.thanks {
+    display: flex;
+    min-height: 760px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 150px max(8vw, 30px) 90px;
+    background: radial-gradient(circle at 75% 25%, rgba(237, 237, 237, .12), transparent 33%), #1A0B4C;
+}
+
+.thanks p {
+    max-width: 680px;
+    margin-bottom: 30px;
+    color: var(--muted);
+    line-height: 1.8;
+}
+
+.success-mark {
+    display: grid;
+    width: 54px;
+    height: 54px;
+    margin-bottom: 26px;
+    place-items: center;
+    border: 1px solid #EDEDED;
+    border-radius: 50%;
+    font-size: 24px;
+}
+
+@media (max-width: 850px) {
+    .sim-grid,
+    .pathways,
+    .form-shell { grid-template-columns: 1fr; }
+    .form-intro { position: static; }
+}
+
+@media (max-width: 650px) {
+    .sim-card { min-height: 390px; }
+    .sim-card > div { padding: 24px; }
+    .field-grid { grid-template-columns: 1fr; }
+    .enquiry-form fieldset { flex-direction: column; }
+    .form-hero { padding-top: 150px; }
+}
