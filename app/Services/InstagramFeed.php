@@ -40,6 +40,8 @@ class InstagramFeed
                             ? ($media['thumbnail_url'] ?? null)
                             : ($media['media_url'] ?? null),
                         'date' => $item['timestamp'] ?? null,
+                        'alternate' => collect(config('services.instagram.alternate_posts', []))
+                            ->contains(fn (string $postId) => str_contains($item['permalink'] ?? '', $postId)),
                     ];
                 })->filter(fn (array $post) => $post['image'])->values()->all();
             } catch (\Throwable) {

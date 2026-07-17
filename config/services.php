@@ -6,6 +6,7 @@ return [
         'user_id' => env('INSTAGRAM_USER_ID'),
         'access_token' => env('INSTAGRAM_ACCESS_TOKEN'),
         'profile_url' => env('INSTAGRAM_PROFILE_URL', 'https://www.instagram.com/toga_racing/'),
+        'alternate_posts' => array_filter(explode(',', env('INSTAGRAM_ALTERNATE_POSTS', 'Dai8OYnDFzk,Dai8K2AjDL5'))),
     ],
 
     'enquiries' => [

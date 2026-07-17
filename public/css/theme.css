@@ -120,8 +120,14 @@ footer {
 }
 
 .instagram-grid-alternate {
-    margin-top: 16px;
+    width: 100%;
+    max-width: 760px;
+    margin: 22px auto 0;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.instagram-grid-four {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .instagram-grid-alternate:empty {
@@ -130,6 +136,12 @@ footer {
 
 .instagram-card-alternate {
     width: 100%;
+}
+
+.instagram-card-alternate img {
+    width: 106%;
+    max-width: none;
+    margin-left: -3%;
 }
 
 .instagram-card span {
@@ -181,6 +193,7 @@ footer {
 
 @media (max-width: 950px) {
     .instagram-grid { grid-template-columns: repeat(2, 1fr); }
+    .instagram-grid-four { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 650px) {
@@ -278,6 +291,102 @@ footer {
 .path-card ul {
     margin: 24px 0 30px;
     padding-left: 19px;
+}
+
+.sponsor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.sponsor-card {
+    display: grid;
+    grid-template-columns: minmax(180px, .7fr) minmax(0, 1.3fr);
+    min-height: 360px;
+    overflow: hidden;
+    border: 1px solid rgba(237, 237, 237, .15);
+    border-radius: 18px;
+    background: radial-gradient(circle at top left, rgba(237, 237, 237, .1), transparent 42%), var(--panel);
+    color: #EDEDED;
+    text-decoration: none;
+    transition: transform .25s ease, border-color .25s ease;
+}
+
+.sponsor-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(237, 237, 237, .5);
+}
+
+.sponsor-logo {
+    display: grid;
+    min-height: 250px;
+    place-items: center;
+    padding: 34px;
+    background: rgba(10, 4, 32, .45);
+}
+
+.sponsor-logo img {
+    width: 100%;
+    max-width: 250px;
+    max-height: 150px;
+    object-fit: contain;
+}
+
+.sponsor-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 34px;
+}
+
+.sponsor-copy > span,
+.sponsor-copy > strong {
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+}
+
+.sponsor-copy h3 {
+    margin: 11px 0;
+    font-size: clamp(23px, 2.3vw, 34px);
+}
+
+.sponsor-copy p {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.discount {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin: 17px 0 23px;
+    padding: 13px 15px;
+    border: 1px dashed rgba(237, 237, 237, .35);
+    border-radius: 7px;
+    background: rgba(237, 237, 237, .06);
+}
+
+.discount small {
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .1em;
+}
+
+.discount b {
+    font-size: 18px;
+    letter-spacing: .08em;
+}
+
+.sponsor-disclosure {
+    margin: 18px 0 0;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.6;
 }
 
 .form-hero {
@@ -467,7 +576,8 @@ footer {
 @media (max-width: 850px) {
     .sim-grid,
     .pathways,
-    .form-shell { grid-template-columns: 1fr; }
+    .form-shell,
+    .sponsor-grid { grid-template-columns: 1fr; }
     .form-intro { position: static; }
 }
 
@@ -477,4 +587,6 @@ footer {
     .field-grid { grid-template-columns: 1fr; }
     .enquiry-form fieldset { flex-direction: column; }
     .form-hero { padding-top: 150px; }
+    .sponsor-card { grid-template-columns: 1fr; }
+    .sponsor-logo { min-height: 190px; }
 }
