@@ -13,7 +13,7 @@ class InstagramFeedTest extends TestCase
     {
         config()->set('services.instagram.user_id', '123');
         config()->set('services.instagram.access_token', 'test-token');
-        Cache::forget('instagram-api-feed');
+        Cache::forget('instagram-api-feed-v2');
 
         Http::fake([
             'graph.instagram.com/*' => Http::response(['data' => [[
@@ -37,7 +37,7 @@ class InstagramFeedTest extends TestCase
     {
         config()->set('services.instagram.user_id', '123');
         config()->set('services.instagram.access_token', 'test-token');
-        Cache::forget('instagram-api-feed');
+        Cache::forget('instagram-api-feed-v2');
 
         Http::fake([
             'graph.instagram.com/*' => Http::response(['data' => [[

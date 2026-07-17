@@ -16,7 +16,7 @@ class InstagramFeed
             return [];
         }
 
-        return Cache::remember('instagram-api-feed', now()->addMinutes(30), function () use ($token, $userId, $limit) {
+        return Cache::remember('instagram-api-feed-v2', now()->addMinutes(30), function () use ($token, $userId, $limit) {
             try {
                 $response = Http::timeout(8)->retry(1, 200)->get(
                     'https://graph.instagram.com/'.$userId.'/media',
