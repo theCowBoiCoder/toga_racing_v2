@@ -217,7 +217,7 @@ footer {
     position: relative;
     min-height: 480px;
     overflow: hidden;
-    border: 1px solid rgba(237, 237, 237, .16);
+    border: 0;
     border-radius: 18px;
     background-position: center;
     background-size: cover;
@@ -231,6 +231,16 @@ footer {
     inset: 0;
     content: '';
     background: linear-gradient(0deg, #1A0B4C 2%, rgba(26, 11, 76, .58) 55%, rgba(16, 14, 14, .12));
+}
+
+.sim-card::before {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    border: 1px solid rgba(237, 237, 237, .22);
+    border-radius: inherit;
+    content: '';
+    pointer-events: none;
 }
 
 .sim-card > div {
