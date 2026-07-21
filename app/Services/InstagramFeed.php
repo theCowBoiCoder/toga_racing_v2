@@ -16,7 +16,7 @@ class InstagramFeed
             return [];
         }
 
-        return Cache::remember('instagram-api-feed-v2', now()->addMinutes(30), function () use ($token, $userId, $limit) {
+        return Cache::remember('instagram-api-feed-v3-'.$limit, now()->addMinutes(30), function () use ($token, $userId, $limit) {
             try {
                 $response = Http::timeout(8)->retry(1, 200)->get(
                     'https://graph.instagram.com/'.$userId.'/media',
@@ -40,10 +40,12 @@ class InstagramFeed
                             ? ($media['thumbnail_url'] ?? null)
                             : ($media['media_url'] ?? null),
                         'date' => $item['timestamp'] ?? null,
-                        'alternate' => collect(config('services.instagram.alternate_posts', []))
-                            ->contains(fn (string $postId) => str_contains($item['permalink'] ?? '', $postId)),
                     ];
-                })->filter(fn (array $post) => $post['image'])->values()->all();
+                })
+                    ->filter(fn (array $post) => $post['image'])
+                    ->sortByDesc(fn (array $post) => $post['date'] ?? '')
+                    ->values()
+                    ->all();
             } catch (\Throwable) {
                 return [];
             }
