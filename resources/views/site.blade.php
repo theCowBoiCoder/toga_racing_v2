@@ -8,6 +8,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/site.css') }}">
     <link rel="stylesheet" href="{{ asset('css/theme.css') }}">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZHYM4ZLELB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-ZHYM4ZLELB');
+    </script>
 </head>
 <body>
 <header class="header"><a class="brand" href="{{ route('home') }}"><img src="{{ asset('images/logo.png') }}" alt=""><span>TOGA RACING</span></a><button class="menu" aria-label="Toggle menu">☰</button><nav><a href="{{ route('gallery') }}">Gallery</a><a href="{{ route('news') }}">News</a><a href="{{ route('join') }}">Join us</a><a href="{{ route('partners') }}">Become a Partner</a><a class="social" href="https://www.youtube.com/@TogaRacing">YouTube ↗</a></nav></header>
