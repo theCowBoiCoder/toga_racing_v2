@@ -6,7 +6,7 @@
 }
 
 .button {
-    color: #1A0B4C;
+    color: #100e0e;
 }
 
 .hero-tagline {
@@ -33,7 +33,7 @@
 }
 
 .header {
-    background: rgba(26, 11, 76, .78);
+    background: rgba(16, 14, 14, .82);
 }
 
 .brand {
@@ -49,13 +49,13 @@
 
 .hero {
     background:
-        linear-gradient(90deg, #1A0B4C 5%, rgba(26, 11, 76, .86) 43%, rgba(26, 11, 76, .24)),
+        linear-gradient(90deg, #1A0B4C 5%, rgba(26, 11, 76, .86) 43%, rgba(16, 14, 14, .26)),
         linear-gradient(0deg, #1A0B4C, transparent 55%),
         url('/images/hero-racing.png') center/cover;
 }
 
 .telemetry {
-    background: rgba(26, 11, 76, .76);
+    background: rgba(16, 14, 14, .82);
 }
 
 .driver-image {
@@ -63,15 +63,19 @@
 }
 
 .statement {
-    background: linear-gradient(90deg, rgba(26, 11, 76, .94), rgba(26, 11, 76, .62)), url('/images/feature-racing.png') center/cover;
+    background: linear-gradient(90deg, rgba(16, 14, 14, .95), rgba(16, 14, 14, .64)), url('/images/feature-racing.png') center/cover;
 }
 
 .news-card {
-    background: radial-gradient(circle at top right, rgba(237, 237, 237, .12), transparent 48%), var(--panel);
+    background: radial-gradient(circle at top right, rgba(237, 237, 237, .12), transparent 48%), #100e0e;
+}
+
+.driver-card:nth-child(even) {
+    background: #100e0e;
 }
 
 .page-hero {
-    background: radial-gradient(circle at 80% 10%, rgba(237, 237, 237, .12), transparent 33%), #1A0B4C;
+    background: radial-gradient(circle at 80% 10%, rgba(237, 237, 237, .14), transparent 33%), #1A0B4C;
 }
 
 .profile-photo,
@@ -80,12 +84,12 @@
 }
 
 footer {
-    background: #120733;
+    background: #100e0e;
 }
 
 @media (max-width: 650px) {
     .header nav {
-        background: rgba(26, 11, 76, .98);
+        background: rgba(16, 14, 14, .98);
     }
 }
 
@@ -101,7 +105,7 @@ footer {
     overflow: hidden;
     border: 1px solid rgba(237, 237, 237, .16);
     border-radius: 14px;
-    background: #120733;
+    background: #100e0e;
     color: #EDEDED;
 }
 
@@ -151,7 +155,7 @@ footer {
     display: grid;
     gap: 7px;
     padding: 50px 18px 18px;
-    background: linear-gradient(transparent, rgba(26, 11, 76, .95));
+    background: linear-gradient(transparent, rgba(16, 14, 14, .96));
     font-size: 11px;
     line-height: 1.5;
 }
@@ -225,7 +229,7 @@ footer {
     position: absolute;
     inset: 0;
     content: '';
-    background: linear-gradient(0deg, #1A0B4C 2%, rgba(26, 11, 76, .55) 55%, rgba(26, 11, 76, .1));
+    background: linear-gradient(0deg, #1A0B4C 2%, rgba(26, 11, 76, .58) 55%, rgba(16, 14, 14, .12));
 }
 
 .sim-card > div {
@@ -272,7 +276,7 @@ footer {
     padding: clamp(28px, 4vw, 58px);
     border: 1px solid rgba(237, 237, 237, .14);
     border-radius: 18px;
-    background: radial-gradient(circle at top right, rgba(237, 237, 237, .1), transparent 42%), var(--panel);
+    background: radial-gradient(circle at top right, rgba(237, 237, 237, .1), transparent 42%), #100e0e;
 }
 
 .path-card h2 {
@@ -322,7 +326,7 @@ footer {
     min-height: 250px;
     place-items: center;
     padding: 34px;
-    background: rgba(10, 4, 32, .45);
+    background: rgba(16, 14, 14, .5);
 }
 
 .sponsor-logo img {
@@ -391,7 +395,7 @@ footer {
 
 .form-hero {
     padding: 190px max(5vw, 28px) 90px;
-    background: radial-gradient(circle at 80% 10%, rgba(237, 237, 237, .12), transparent 33%), #1A0B4C;
+    background: radial-gradient(circle at 80% 10%, rgba(237, 237, 237, .14), transparent 33%), #1A0B4C;
 }
 
 .form-hero h1,
@@ -490,14 +494,14 @@ footer {
     border: 1px solid rgba(237, 237, 237, .2);
     border-radius: 8px;
     outline: none;
-    background: rgba(237, 237, 237, .055);
+    background: rgba(16, 14, 14, .72);
     padding: 14px 15px;
     color: #EDEDED;
     font: 500 14px Montserrat, sans-serif;
     text-transform: none;
 }
 
-.enquiry-form select option { color: #1A0B4C; }
+.enquiry-form select option { color: #100e0e; }
 .enquiry-form textarea { resize: vertical; line-height: 1.6; }
 .enquiry-form input:focus,
 .enquiry-form textarea:focus,
@@ -552,7 +556,7 @@ footer {
     align-items: flex-start;
     justify-content: center;
     padding: 150px max(8vw, 30px) 90px;
-    background: radial-gradient(circle at 75% 25%, rgba(237, 237, 237, .12), transparent 33%), #1A0B4C;
+    background: radial-gradient(circle at 75% 25%, rgba(237, 237, 237, .14), transparent 33%), #1A0B4C;
 }
 
 .thanks p {
@@ -589,4 +593,133 @@ footer {
     .form-hero { padding-top: 150px; }
     .sponsor-card { grid-template-columns: 1fr; }
     .sponsor-logo { min-height: 190px; }
+}
+
+/* Refined blue, white and black motorsport theme */
+:root {
+    --black: #100e0e;
+    --line: rgba(237, 237, 237, .16);
+}
+
+body { background: var(--black); }
+.section { max-width: 1380px; }
+
+.header {
+    border-bottom-color: rgba(237, 237, 237, .12);
+}
+
+.header nav a { transition: color .2s ease, opacity .2s ease; }
+.header nav a:hover { color: #EDEDED; opacity: .72; }
+
+.hero {
+    min-height: min(880px, 100vh);
+    background:
+        linear-gradient(90deg, #1A0B4C 2%, rgba(26, 11, 76, .88) 40%, rgba(16, 14, 14, .18)),
+        linear-gradient(0deg, #100e0e 0%, transparent 52%),
+        url('/images/hero-racing.png') center/cover;
+}
+
+.hero-copy { max-width: 1050px; }
+.hero .hero-title {
+    margin-bottom: 12px;
+    font-size: clamp(62px, 9vw, 132px);
+    letter-spacing: -.075em;
+}
+.hero-copy > p:not(.hero-tagline) { max-width: 590px; }
+
+.sims-section,
+.sponsor-section {
+    max-width: none;
+    background: #1A0B4C;
+}
+
+.sims-section > *,
+.sponsor-section > * {
+    max-width: 1280px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.instagram-section,
+.pathways { background: var(--black); }
+
+.section-head h2,
+.statement h2,
+.path-card h2 { letter-spacing: -.045em; }
+
+.section-head p {
+    max-width: 560px;
+    line-height: 1.7;
+}
+
+.kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.kicker::before {
+    width: 28px;
+    height: 2px;
+    background: #EDEDED;
+    content: '';
+}
+
+.news-card,
+.driver-card,
+.path-card,
+.sponsor-card,
+.sim-card { box-shadow: 0 24px 65px rgba(0, 0, 0, .18); }
+
+.statement {
+    min-height: 650px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.statement h2 { max-width: 980px; }
+
+.sim-card,
+.path-card,
+.sponsor-card { border-radius: 8px; }
+
+.sim-card::after,
+.sim-card > div { transition: .35s ease; }
+.sim-card:hover::after {
+    background: linear-gradient(0deg, #1A0B4C 2%, rgba(26, 11, 76, .42) 58%, transparent);
+}
+.sim-card:hover > div { transform: translateY(-6px); }
+
+.discount {
+    background: #EDEDED;
+    color: #100e0e;
+}
+
+.button {
+    border: 1px solid #EDEDED;
+    border-radius: 3px;
+    transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.button:hover {
+    transform: translateY(-2px);
+    background: transparent;
+    color: #EDEDED;
+}
+.button.ghost:hover {
+    background: #EDEDED;
+    color: #100e0e;
+}
+
+footer { border-top: 3px solid #EDEDED; }
+
+@media (max-width: 650px) {
+    .hero {
+        min-height: 760px;
+        background-position: 62% center;
+    }
+    .hero .hero-title {
+        white-space: normal;
+        font-size: clamp(48px, 16vw, 72px);
+    }
+    .statement { min-height: 540px; }
 }
