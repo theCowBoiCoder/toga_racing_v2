@@ -237,7 +237,7 @@ footer {
     position: absolute;
     z-index: 1;
     inset: auto 0 0;
-    padding: 32px;
+    padding: 32px 32px 28px;
 }
 
 .sim-card span {
@@ -261,12 +261,34 @@ footer {
 }
 
 .sim-card a {
+    display: inline-flex;
+    min-height: 44px;
+    margin-top: 8px;
+    align-items: center;
+    padding: 0 16px;
+    border: 1px solid rgba(237, 237, 237, .38);
+    border-radius: 3px;
+    background: rgba(16, 14, 14, .34);
     color: #EDEDED;
     font-size: 10px;
     font-weight: 900;
     letter-spacing: .12em;
     text-decoration: none;
     text-transform: uppercase;
+    transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, transform 200ms ease;
+}
+
+.sim-card a:hover,
+.sim-card a:focus-visible {
+    border-color: #EDEDED;
+    background: #EDEDED;
+    color: #100E0E;
+    transform: translateY(-2px);
+}
+
+.sim-card a:focus-visible {
+    outline: 2px solid #EDEDED;
+    outline-offset: 3px;
 }
 
 .pathways {
