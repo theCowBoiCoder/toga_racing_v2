@@ -133,11 +133,11 @@ class StintPlanController extends Controller
 
     private function authorizeShare(Request $request): void
     {
-        $configured = (string) config('services.stint_planner.share_key');
-        $provided = (string) $request->input('share_key');
+        $configured = trim((string) config('services.stint_planner.share_key'));
+        $provided = trim((string) $request->input('share_key'));
 
         abort_if($configured === '', 503, 'The stint planner share key is not configured.');
-        abort_unless(hash_equals($configured, $provided), 403, 'The team share key is incorrect.');
+        abort_unless(hash_equals($configured, $provided), 403, 'The team share key is incorrect. Re-enter it without any extra characters.');
     }
 
     private function validatePlan(Request $request): array

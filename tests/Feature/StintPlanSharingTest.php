@@ -37,6 +37,14 @@ class StintPlanSharingTest extends TestCase
         $this->postJson(route('stint-planner.publish'), ['share_key' => 'wrong', 'plan' => $this->planPayload()])->assertForbidden();
     }
 
+    public function test_surrounding_whitespace_on_the_share_key_is_ignored(): void
+    {
+        $this->postJson(route('stint-planner.publish'), [
+            'share_key' => "  team-secret\r\n",
+            'plan' => $this->planPayload(),
+        ])->assertOk();
+    }
+
     public function test_a_published_plan_can_be_sent_to_discord(): void
     {
         Http::fake(['discord.com/*' => Http::response(['id' => 'message-1'])]);

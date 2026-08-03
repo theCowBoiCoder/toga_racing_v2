@@ -100,7 +100,7 @@
                         <p>Publish the latest plan, copy either URL into an OBS Browser Source, or send the schedule to your team’s Discord channel.</p>
                     </div>
                     <div class="broadcast-actions">
-                        <label>Team share key<input id="share-key" type="password" autocomplete="current-password" placeholder="Required to publish or send"></label>
+                        <label>Team share key<input id="share-key" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false" placeholder="Required to publish or send"></label>
                         <button class="planner-button primary" id="publish-plan" type="button">Publish / update overlays</button>
                         <button class="planner-button" id="send-discord" type="button">Send plan to Discord</button>
                     </div>

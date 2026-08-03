@@ -362,7 +362,7 @@
     }
 
     async function publishPlan() {
-        const shareKey = el('share-key').value;
+        const shareKey = el('share-key').value.trim();
         if (plannerRoot.dataset.shareConfigured !== 'true') throw new Error('Publishing is not configured yet. Add STINT_PLANNER_SHARE_KEY to .env and recreate the app container.');
         if (!shareKey) throw new Error('Enter the team share key first.');
         shareStatus('Publishing the latest plan…');
@@ -399,7 +399,7 @@
     }
 
     async function syncAvailability() {
-        const shareKey = el('share-key').value;
+        const shareKey = el('share-key').value.trim();
         const planToken = localStorage.getItem(planTokenKey);
         if (!shareKey) throw new Error('Enter the team share key first.');
         if (!planToken) throw new Error('Publish the plan first to create the driver availability link.');
@@ -417,7 +417,7 @@
     async function sendDiscord() {
         const result = await publishPlan();
         shareStatus('Sending the race plan to Discord…');
-        const response = await postJson(plannerRoot.dataset.discordUrl, { share_key: el('share-key').value, plan_token: result.token });
+        const response = await postJson(plannerRoot.dataset.discordUrl, { share_key: el('share-key').value.trim(), plan_token: result.token });
         shareStatus(response.message || 'Race plan sent to Discord.', 'success');
     }
 
