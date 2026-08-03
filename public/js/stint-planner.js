@@ -356,12 +356,14 @@
             body: JSON.stringify(body),
         });
         const payload = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(payload.message || 'The request could not be completed.');
+        const validationMessage = Object.values(payload.errors || {}).flat()[0];
+        if (!response.ok) throw new Error(payload.message || validationMessage || `The request could not be completed (${response.status}).`);
         return payload;
     }
 
     async function publishPlan() {
         const shareKey = el('share-key').value;
+        if (plannerRoot.dataset.shareConfigured !== 'true') throw new Error('Publishing is not configured yet. Add STINT_PLANNER_SHARE_KEY to .env and recreate the app container.');
         if (!shareKey) throw new Error('Enter the team share key first.');
         shareStatus('Publishing the latest plan…');
         const result = await postJson(plannerRoot.dataset.publishUrl, {
@@ -369,6 +371,9 @@
             plan_token: localStorage.getItem(planTokenKey),
             plan: sharePayload(),
         });
+        if (!result?.token || !result?.overlays?.compact || !result?.overlays?.schedule || !result?.availability_url) {
+            throw new Error('The server returned an incomplete publish response. Refresh the page and try again.');
+        }
         localStorage.setItem(planTokenKey, result.token);
         el('compact-overlay-url').value = result.overlays.compact;
         el('schedule-overlay-url').value = result.overlays.schedule;

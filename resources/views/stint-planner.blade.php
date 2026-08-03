@@ -21,7 +21,7 @@
     <nav><a class="active" href="{{ route('stint-planner') }}">Stint Planner</a><a href="{{ route('gallery') }}">Gallery</a><a href="{{ route('news') }}">News</a><a href="{{ route('join') }}">Join us</a><a href="{{ route('partners') }}">Partner</a></nav>
 </header>
 
-<main id="planner-app" data-template-url="{{ route('stint-planner.template') }}" data-publish-url="{{ route('stint-planner.publish') }}" data-discord-url="{{ route('stint-planner.discord') }}" data-availability-sync-url="{{ route('stint-planner.availability-sync') }}">
+<main id="planner-app" data-template-url="{{ route('stint-planner.template') }}" data-publish-url="{{ route('stint-planner.publish') }}" data-discord-url="{{ route('stint-planner.discord') }}" data-availability-sync-url="{{ route('stint-planner.availability-sync') }}" data-share-configured="{{ config('services.stint_planner.share_key') ? 'true' : 'false' }}">
     <section class="planner-hero">
         <div>
             <span class="kicker">ENDURANCE OPERATIONS</span>
@@ -104,7 +104,7 @@
                         <button class="planner-button primary" id="publish-plan" type="button">Publish / update overlays</button>
                         <button class="planner-button" id="send-discord" type="button">Send plan to Discord</button>
                     </div>
-                    <p class="share-message" id="share-message" aria-live="polite">Publish once to generate your OBS Browser Source URLs.</p>
+                    <p class="share-message{{ config('services.stint_planner.share_key') ? '' : ' error' }}" id="share-message" aria-live="polite">{{ config('services.stint_planner.share_key') ? 'Publish once to generate your availability and OBS links.' : 'Setup required: STINT_PLANNER_SHARE_KEY is missing from the server environment.' }}</p>
                     <div class="overlay-links" id="overlay-links" hidden>
                         <label class="wide"><span>Driver availability form · send this link to the team</span><span class="copy-field"><input id="availability-form-url" type="url" readonly><button type="button" data-copy-overlay="availability-form-url">Copy</button></span></label>
                         <label><span>Compact overlay · 1920 × 180</span><span class="copy-field"><input id="compact-overlay-url" type="url" readonly><button type="button" data-copy-overlay="compact-overlay-url">Copy</button></span></label>
@@ -131,6 +131,6 @@
 </main>
 
 <footer><div><span class="footer-logo">TOGA RACING</span><p>Precision in Every Turn</p></div><div><a href="{{ route('home') }}">Home</a><a href="{{ route('gallery') }}">Gallery</a><a href="{{ route('join') }}">Join us</a></div><small>© {{ date('Y') }} Toga Racing. All rights reserved.</small></footer>
-<script src="{{ asset('js/stint-planner.js') }}" defer></script>
+<script src="{{ asset('js/stint-planner.js') }}?v={{ filemtime(public_path('js/stint-planner.js')) }}" defer></script>
 </body>
 </html>
