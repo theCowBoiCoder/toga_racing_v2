@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\DriverApplication;
 use App\Models\SponsorEnquiry;
+use App\Models\StintPlan;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -51,11 +52,53 @@ class DiscordNotifier
         ]);
     }
 
-    private function send(?string $channelId, array $embed): void
+    public function stintPlan(StintPlan $stintPlan): bool
+    {
+        $plan = $stintPlan->plan;
+        $schedule = collect($plan['schedule'] ?? []);
+        $fields = [
+            ['name' => 'Simulator / car', 'value' => $this->clean(($plan['sim'] ?? '').' · '.($plan['car'] ?? '')), 'inline' => true],
+            ['name' => 'Track', 'value' => $this->clean($plan['track'] ?? ''), 'inline' => true],
+            ['name' => 'Start', 'value' => $this->clean(($plan['race_date'] ?? '').' '.($plan['start_time'] ?? '').' local'), 'inline' => true],
+        ];
+
+        $availability = collect($plan['availability'] ?? [])->groupBy('driver')->map(function ($windows, $driver) {
+            $times = $windows->map(fn (array $window) => ($window['from_label'] ?? '?').' - '.($window['to_label'] ?? '?'))->implode("\n");
+
+            return '**'.$this->clean($driver, 70).'** · '.$times;
+        })->implode("\n");
+        if ($availability !== '') {
+            $fields[] = ['name' => 'Driver availability', 'value' => mb_substr($availability, 0, 1024)];
+        }
+
+        foreach ($schedule->chunk(8) as $chunkIndex => $chunk) {
+            $first = $chunk->first()['stint'] ?? 1;
+            $last = $chunk->last()['stint'] ?? $first;
+            $lines = $chunk->map(function (array $stint) use ($plan) {
+                $start = $stint['start_label'] ?? '--:--';
+                $driver = $stint['driver'] ?: 'TBC';
+                $fuel = rtrim(rtrim(number_format((float) ($stint['start_target'] ?? 0), 1), '0'), '.');
+
+                return sprintf('`%02d` **%s** · %s · %s laps · %s %s', $stint['stint'], $this->clean($driver, 70), $start, $stint['laps'] ?? 0, $fuel, $plan['fuel_unit'] ?? '');
+            })->implode("\n");
+            $fields[] = ['name' => "Stints {$first}–{$last}", 'value' => mb_substr($lines, 0, 1024)];
+        }
+
+        return $this->send(config('services.discord.stint_channel'), [
+            'title' => '🏁 '.($plan['event'] ?? 'Toga Racing stint plan'),
+            'description' => sprintf('**%s stints · %s minute race**\nPublished from the Toga Racing stint planner.', $schedule->count(), $plan['race_mins'] ?? '—'),
+            'color' => 1706828,
+            'fields' => $fields,
+            'footer' => ['text' => 'Toga Racing · Plan '.$stintPlan->token],
+            'timestamp' => $stintPlan->updated_at->toIso8601String(),
+        ]);
+    }
+
+    private function send(?string $channelId, array $embed): bool
     {
         $token = config('services.discord.bot_token');
         if (! $token || ! $channelId) {
-            return;
+            return false;
         }
 
         try {
@@ -63,8 +106,10 @@ class DiscordNotifier
                 'https://discord.com/api/v10/channels/'.$channelId.'/messages',
                 ['embeds' => [$embed], 'allowed_mentions' => ['parse' => []]]
             )->throw();
+            return true;
         } catch (\Throwable $exception) {
             Log::warning('Discord form notification failed.', ['channel_id' => $channelId, 'error' => $exception->getMessage()]);
+            return false;
         }
     }
 

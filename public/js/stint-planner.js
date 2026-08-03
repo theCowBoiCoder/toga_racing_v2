@@ -1,5 +1,7 @@
 (() => {
     const storageKey = 'toga-racing-stint-planner-v1';
+    const planTokenKey = 'toga-racing-stint-plan-token-v1';
+    const plannerRoot = document.getElementById('planner-app');
     const lmuSource = 'Official LMU Spa 2026 BoP reference';
     const iracingSource = 'Official iRacing car/manual reference';
     const cars = [
@@ -58,7 +60,7 @@
         raceDate: '2026-07-11', startTime: '13:45', raceMins: 1440, lapSecs: 138,
         fuelPerLap: 4, usableCapacity: 101, reserveLaps: 2, maxStint: 56, pitLoss: 60,
         drivers: ['Hayden Sweet', 'Stijn Donckerwolke', 'Mitchell Sterrenberg', 'Lukas James', 'Konrad Wasowicz', 'Lukas Küthe', 'Troy-Fraser McGonigal', 'Jordan McGonigal'],
-        assignments: [],
+        assignments: [], availability: [],
     };
 
     const fields = {
@@ -75,7 +77,7 @@
     function loadState() {
         try {
             const stored = JSON.parse(localStorage.getItem(storageKey));
-            return stored ? { ...defaults, ...stored, drivers: stored.drivers?.length ? stored.drivers : defaults.drivers, assignments: stored.assignments || [] } : structuredClone(defaults);
+            return stored ? { ...defaults, ...stored, drivers: stored.drivers?.length ? stored.drivers : defaults.drivers, assignments: stored.assignments || [], availability: stored.availability || [] } : structuredClone(defaults);
         } catch (_) {
             return structuredClone(defaults);
         }
@@ -173,28 +175,119 @@
         el('summary-laps').textContent = totalLaps ? `${totalLaps} estimated race laps` : '—';
     }
 
-    function driverOptions(selected) {
+    function driverOptions(selected, stint = null) {
         const options = [''].concat(state.drivers.filter(Boolean));
-        return options.map((name) => `<option value="${escapeHtml(name)}"${name === selected ? ' selected' : ''}>${escapeHtml(name || 'Unassigned')}</option>`).join('');
+        return options.map((name) => {
+            const unavailable = name && stint && !isDriverAvailable(name, stint.start, stint.end);
+            const label = name ? `${name}${unavailable ? ' - unavailable' : ''}` : 'Unassigned';
+            return `<option value="${escapeHtml(name)}"${name === selected ? ' selected' : ''}>${escapeHtml(label)}</option>`;
+        }).join('');
+    }
+
+    function availabilityWindows(driver) {
+        return state.availability.filter((window) => window.driver === driver && window.from && window.to);
+    }
+
+    function isDriverAvailable(driver, start, end) {
+        if (!driver) return false;
+        const windows = availabilityWindows(driver);
+        if (!windows.length) return true;
+        return windows.some((window) => {
+            const from = new Date(window.from);
+            const to = new Date(window.to);
+            return Number.isFinite(from.getTime()) && Number.isFinite(to.getTime()) && from <= start && to >= end;
+        });
+    }
+
+    function availabilityStatus(stint) {
+        if (!stint.driver) return { label: 'Unassigned', className: 'unassigned' };
+        return isDriverAvailable(stint.driver, stint.start, stint.end)
+            ? { label: 'Available', className: '' }
+            : { label: 'Conflict', className: 'conflict' };
     }
 
     function renderSchedule(schedule, unit) {
         el('empty-state').hidden = schedule.length > 0;
-        el('schedule-body').innerHTML = schedule.map((stint) => `
-            <tr>
+        el('schedule-body').innerHTML = schedule.map((stint) => {
+            const status = availabilityStatus(stint);
+            const driverConflict = stint.driver && !isDriverAvailable(stint.driver, stint.start, stint.end);
+            const standbyConflict = stint.standby && !isDriverAvailable(stint.standby, stint.start, stint.end);
+            return `
+            <tr${driverConflict ? ' class="availability-conflict"' : ''}>
                 <td>${stint.index + 1}</td>
-                <td><select data-assignment="driver" data-index="${stint.index}" aria-label="Driver for stint ${stint.index + 1}">${driverOptions(stint.driver)}</select></td>
-                <td><select data-assignment="standby" data-index="${stint.index}" aria-label="Stand-by driver for stint ${stint.index + 1}">${driverOptions(stint.standby)}</select></td>
+                <td><select${driverConflict ? ' class="availability-conflict"' : ''} data-assignment="driver" data-index="${stint.index}" aria-label="Driver for stint ${stint.index + 1}">${driverOptions(stint.driver, stint)}</select></td>
+                <td><select${standbyConflict ? ' class="availability-conflict"' : ''} data-assignment="standby" data-index="${stint.index}" aria-label="Stand-by driver for stint ${stint.index + 1}">${driverOptions(stint.standby, stint)}</select></td>
+                <td><span class="availability-badge ${status.className}">${status.label}</span></td>
                 <td>${formatClock(stint.start)}</td><td>${formatClock(stint.end)}</td>
                 <td>${formatNumber(stint.driveMins, 1)}</td><td>${stint.laps}</td>
                 <td>${formatNumber(stint.fuel, 1)} ${escapeHtml(unit)}</td><td>${formatNumber(stint.startTarget, 1)} ${escapeHtml(unit)}</td>
                 <td><input class="notes-input" data-assignment="notes" data-index="${stint.index}" value="${escapeHtml(stint.notes)}" aria-label="Notes for stint ${stint.index + 1}"></td>
-            </tr>`).join('');
+            </tr>`;
+        }).join('');
     }
 
     function renderRoster() {
         el('roster-list').innerHTML = state.drivers.map((driver, index) => `
             <div class="roster-row"><span>${String(index + 1).padStart(2, '0')}</span><input data-driver-index="${index}" value="${escapeHtml(driver)}" aria-label="Driver ${index + 1} name"><button class="icon-button" data-remove-driver="${index}" type="button" aria-label="Remove ${escapeHtml(driver || `driver ${index + 1}`)}">×</button></div>`).join('');
+    }
+
+    function availabilityDriverOptions(selected) {
+        return state.drivers.filter(Boolean).map((driver) => `<option value="${escapeHtml(driver)}"${driver === selected ? ' selected' : ''}>${escapeHtml(driver)}</option>`).join('');
+    }
+
+    function renderAvailability() {
+        if (!state.availability.length) {
+            el('availability-list').innerHTML = '<div class="availability-empty">No restrictions added. Every rostered driver is currently available for the full race.</div>';
+            return;
+        }
+        el('availability-list').innerHTML = state.availability.map((window, index) => `
+            <div class="availability-row">
+                <div class="availability-row-fields">
+                    <label>Driver<select data-availability-index="${index}" data-availability-field="driver">${availabilityDriverOptions(window.driver)}</select></label>
+                    <label>Available from<input type="datetime-local" data-availability-index="${index}" data-availability-field="from" value="${escapeHtml(window.from || '')}"></label>
+                    <label>Available until<input type="datetime-local" data-availability-index="${index}" data-availability-field="to" value="${escapeHtml(window.to || '')}"></label>
+                </div>
+                <button class="icon-button" data-remove-availability="${index}" type="button" aria-label="Remove availability window">&times;</button>
+            </div>`).join('');
+    }
+
+    function defaultAvailabilityWindow() {
+        const start = new Date(`${state.raceDate}T${state.startTime}:00`);
+        const validStart = Number.isFinite(start.getTime()) ? start : new Date();
+        const finish = new Date(validStart.getTime() + Math.max(state.raceMins, 60) * 60000);
+        return { driver: state.drivers.find(Boolean) || '', from: dateTimeInputValue(validStart), to: dateTimeInputValue(finish) };
+    }
+
+    function autoAssignAvailableDrivers() {
+        const schedule = calculate().schedule;
+        const drivers = state.drivers.filter(Boolean);
+        if (!schedule.length || !drivers.length) {
+            el('availability-message').textContent = 'Add drivers and complete the race inputs first.';
+            el('availability-message').className = 'availability-message warning';
+            return;
+        }
+        let cursor = 0;
+        let unassigned = 0;
+        let previous = '';
+        state.assignments = schedule.map((stint, index) => {
+            const available = drivers.filter((driver) => isDriverAvailable(driver, stint.start, stint.end));
+            if (!available.length) {
+                unassigned += 1;
+                return { ...(state.assignments[index] || {}), driver: '', standby: '' };
+            }
+            const ordered = available.map((_, offset) => available[(cursor + offset) % available.length]);
+            const driver = ordered.find((name) => name !== previous) || ordered[0];
+            const standby = ordered.find((name) => name !== driver) || '';
+            cursor = (drivers.indexOf(driver) + 1) % drivers.length;
+            previous = driver;
+            return { ...(state.assignments[index] || {}), driver, standby };
+        });
+        render();
+        queueSave();
+        el('availability-message').textContent = unassigned
+            ? `${unassigned} stint${unassigned === 1 ? '' : 's'} could not be covered by the entered availability.`
+            : 'All stints assigned using the current availability windows.';
+        el('availability-message').className = `availability-message ${unassigned ? 'warning' : 'success'}`;
     }
 
     function renderDriverTotals(schedule) {
@@ -234,8 +327,10 @@
         const car = selectedCar();
         const rows = [
             ['Event', state.event], ['Simulator', state.sim], ['Car', state.car], ['Track', state.track], ['Race date', state.raceDate], ['Start time', state.startTime], [],
-            ['Stint', 'Driver', 'Stand-by', 'Start', 'End', 'Drive mins', 'Estimated laps', `Fuel needed (${car?.unit || 'units'})`, `Start target (${car?.unit || 'units'})`, 'Notes'],
-            ...lastSchedule.map((s) => [s.index + 1, s.driver, s.standby, formatClock(s.start), formatClock(s.end), s.driveMins.toFixed(1), s.laps, s.fuel.toFixed(1), s.startTarget.toFixed(1), s.notes]),
+            ['Availability windows'],
+            ...state.availability.map((window) => [window.driver, window.from, window.to]), [],
+            ['Stint', 'Driver', 'Stand-by', 'Availability', 'Start', 'End', 'Drive mins', 'Estimated laps', `Fuel needed (${car?.unit || 'units'})`, `Start target (${car?.unit || 'units'})`, 'Notes'],
+            ...lastSchedule.map((s) => [s.index + 1, s.driver, s.standby, availabilityStatus(s).label, formatClock(s.start), formatClock(s.end), s.driveMins.toFixed(1), s.laps, s.fuel.toFixed(1), s.startTarget.toFixed(1), s.notes]),
         ];
         download(`${safeName(state.event)}-stint-plan.csv`, '\ufeff' + rows.map((row) => row.map(csvEscape).join(',')).join('\r\n'), 'text/csv;charset=utf-8');
         setStatus('Schedule exported', 'CSV opens in Excel and Google Sheets');
@@ -246,13 +341,75 @@
         setStatus('Backup downloaded', 'Keep the JSON file to restore this plan');
     }
 
+    function sharePayload() {
+        const result = calculate();
+        if (!result.schedule.length) throw new Error('Complete the race, lap, fuel and capacity inputs first.');
+        return {
+            event: state.event, sim: state.sim, car: state.car, class: result.car?.class || '', track: state.track,
+            race_date: state.raceDate, start_time: state.startTime, race_mins: state.raceMins, lap_secs: state.lapSecs,
+            fuel_per_lap: state.fuelPerLap, fuel_unit: result.car?.unit || 'units', capacity: result.capacity,
+            drivers: state.drivers.filter(Boolean),
+            availability: state.availability.filter((window) => window.driver && window.from && window.to).map((window) => ({
+                driver: window.driver, from: new Date(window.from).toISOString(), to: new Date(window.to).toISOString(),
+                from_label: formatClock(new Date(window.from)), to_label: formatClock(new Date(window.to)),
+            })),
+            schedule: result.schedule.map((stint) => ({
+                stint: stint.index + 1, driver: stint.driver || null, standby: stint.standby || null,
+                start: stint.start.toISOString(), end: stint.end.toISOString(), start_label: formatClock(stint.start), end_label: formatClock(stint.end),
+                drive_mins: Number(stint.driveMins.toFixed(2)), laps: stint.laps, fuel: Number(stint.fuel.toFixed(2)),
+                start_target: Number(stint.startTarget.toFixed(2)), availability_status: availabilityStatus(stint).label, notes: stint.notes || null,
+            })),
+        };
+    }
+
+    async function postJson(url, body) {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+            body: JSON.stringify(body),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.message || 'The request could not be completed.');
+        return payload;
+    }
+
+    async function publishPlan() {
+        const shareKey = el('share-key').value;
+        if (!shareKey) throw new Error('Enter the team share key first.');
+        shareStatus('Publishing the latest plan…');
+        const result = await postJson(plannerRoot.dataset.publishUrl, {
+            share_key: shareKey,
+            plan_token: localStorage.getItem(planTokenKey),
+            plan: sharePayload(),
+        });
+        localStorage.setItem(planTokenKey, result.token);
+        el('compact-overlay-url').value = result.overlays.compact;
+        el('schedule-overlay-url').value = result.overlays.schedule;
+        el('overlay-links').hidden = false;
+        shareStatus('Overlays published. OBS will refresh them automatically.', 'success');
+        return result;
+    }
+
+    async function sendDiscord() {
+        const result = await publishPlan();
+        shareStatus('Sending the race plan to Discord…');
+        const response = await postJson(plannerRoot.dataset.discordUrl, { share_key: el('share-key').value, plan_token: result.token });
+        shareStatus(response.message || 'Race plan sent to Discord.', 'success');
+    }
+
+    function shareStatus(message, type = '') {
+        const messageEl = el('share-message');
+        messageEl.textContent = message;
+        messageEl.className = `share-message ${type}`.trim();
+    }
+
     function importJson(file) {
         const reader = new FileReader();
         reader.onload = () => {
             try {
                 const imported = JSON.parse(reader.result);
-                state = { ...defaults, ...imported, drivers: imported.drivers?.length ? imported.drivers : defaults.drivers, assignments: imported.assignments || [] };
-                syncInputs(); renderRoster(); render(); savePlan('Backup restored');
+                state = { ...defaults, ...imported, drivers: imported.drivers?.length ? imported.drivers : defaults.drivers, assignments: imported.assignments || [], availability: imported.availability || [] };
+                syncInputs(); renderRoster(); renderAvailability(); render(); savePlan('Backup restored');
             } catch (_) {
                 setStatus('Restore failed', 'Choose a valid Toga planner JSON backup');
             }
@@ -262,6 +419,10 @@
 
     function formatClock(date) {
         return new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false }).format(date);
+    }
+    function dateTimeInputValue(date) {
+        const offsetDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+        return offsetDate.toISOString().slice(0, 16);
     }
     function formatNumber(value, digits = 0) { return Number(value).toLocaleString('en-GB', { minimumFractionDigits: digits, maximumFractionDigits: digits }); }
     function safeName(value) { return String(value || 'toga-racing').trim().replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() || 'toga-racing'; }
@@ -284,20 +445,54 @@
         const key = target.dataset.assignment;
         if (!Number.isInteger(index) || !key) return;
         state.assignments[index] = { ...(state.assignments[index] || {}), [key]: target.value };
-        renderDriverTotals(calculate().schedule); queueSave();
+        if (key === 'notes') renderDriverTotals(calculate().schedule);
+        else render();
+        queueSave();
     });
 
     el('roster-list').addEventListener('input', (event) => {
         const index = Number(event.target.dataset.driverIndex);
         if (!Number.isInteger(index)) return;
-        state.drivers[index] = event.target.value; render(); queueSave();
+        const previousName = state.drivers[index];
+        const nextName = event.target.value;
+        state.drivers[index] = nextName;
+        state.availability.forEach((window) => { if (window.driver === previousName) window.driver = nextName; });
+        state.assignments.forEach((assignment) => {
+            if (assignment.driver === previousName) assignment.driver = nextName;
+            if (assignment.standby === previousName) assignment.standby = nextName;
+        });
+        renderAvailability(); render(); queueSave();
     });
     el('roster-list').addEventListener('click', (event) => {
         const index = Number(event.target.dataset.removeDriver);
         if (!Number.isInteger(index)) return;
-        state.drivers.splice(index, 1); renderRoster(); render(); queueSave();
+        const removedName = state.drivers[index];
+        state.drivers.splice(index, 1);
+        state.availability = state.availability.filter((window) => window.driver !== removedName);
+        state.assignments.forEach((assignment) => {
+            if (assignment.driver === removedName) assignment.driver = '';
+            if (assignment.standby === removedName) assignment.standby = '';
+        });
+        renderRoster(); renderAvailability(); render(); queueSave();
     });
-    el('add-driver').addEventListener('click', () => { if (state.drivers.length < 12) { state.drivers.push(`Driver ${state.drivers.length + 1}`); renderRoster(); render(); queueSave(); } });
+    el('add-driver').addEventListener('click', () => { if (state.drivers.length < 12) { state.drivers.push(`Driver ${state.drivers.length + 1}`); renderRoster(); renderAvailability(); render(); queueSave(); } });
+    el('availability-list').addEventListener('input', (event) => {
+        const index = Number(event.target.dataset.availabilityIndex);
+        const field = event.target.dataset.availabilityField;
+        if (!Number.isInteger(index) || !field || !state.availability[index]) return;
+        state.availability[index][field] = event.target.value;
+        render(); queueSave();
+    });
+    el('availability-list').addEventListener('click', (event) => {
+        const index = Number(event.target.dataset.removeAvailability);
+        if (!Number.isInteger(index)) return;
+        state.availability.splice(index, 1); renderAvailability(); render(); queueSave();
+    });
+    el('add-availability').addEventListener('click', () => {
+        if (!state.drivers.some(Boolean)) return;
+        state.availability.push(defaultAvailabilityWindow()); renderAvailability(); render(); queueSave();
+    });
+    el('auto-assign').addEventListener('click', autoAssignAvailableDrivers);
     el('save-plan').addEventListener('click', () => savePlan());
     el('export-csv').addEventListener('click', exportCsv);
     el('export-json').addEventListener('click', exportJson);
@@ -305,11 +500,23 @@
     el('import-file').addEventListener('change', (event) => { if (event.target.files[0]) importJson(event.target.files[0]); event.target.value = ''; });
     el('reset-plan').addEventListener('click', () => {
         if (!confirm('Reset the planner and remove the locally saved plan?')) return;
-        state = structuredClone(defaults); localStorage.removeItem(storageKey); syncInputs(); renderRoster(); render(); savePlan('Plan reset');
+        state = structuredClone(defaults); localStorage.removeItem(storageKey); syncInputs(); renderRoster(); renderAvailability(); render(); savePlan('Plan reset');
+    });
+    el('publish-plan').addEventListener('click', async () => {
+        try { await publishPlan(); } catch (error) { shareStatus(error.message, 'error'); }
+    });
+    el('send-discord').addEventListener('click', async () => {
+        try { await sendDiscord(); } catch (error) { shareStatus(error.message, 'error'); }
+    });
+    el('overlay-links').addEventListener('click', async (event) => {
+        const inputId = event.target.dataset.copyOverlay;
+        if (!inputId) return;
+        await navigator.clipboard.writeText(el(inputId).value);
+        shareStatus('OBS Browser Source URL copied.', 'success');
     });
 
     const menu = document.querySelector('.menu');
     menu.addEventListener('click', () => { const nav = document.querySelector('.header nav'); const open = nav.classList.toggle('open'); menu.setAttribute('aria-expanded', String(open)); });
 
-    syncInputs(); renderRoster(); render(); savePlan(localStorage.getItem(storageKey) ? 'Plan restored' : 'Ready');
+    syncInputs(); renderRoster(); renderAvailability(); render(); savePlan(localStorage.getItem(storageKey) ? 'Plan restored' : 'Ready');
 })();

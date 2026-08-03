@@ -105,23 +105,60 @@
 .icon-button { min-height: 44px; border: 1px solid var(--planner-line); border-radius: 4px; background: transparent; color: #ffb4b4; cursor: pointer; }
 .text-button { min-height: 44px; margin-top: 12px; border: 0; background: transparent; color: var(--planner-white); cursor: pointer; font: 800 9px Montserrat, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
 
+.availability-help { margin: -7px 0 17px; color: var(--planner-muted); font-size: 10px; line-height: 1.65; }
+.availability-list { display: grid; gap: 10px; }
+.availability-row { display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 8px; padding: 12px; border: 1px solid var(--planner-line); border-radius: 6px; background: rgba(16, 14, 14, .42); }
+.availability-row-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.availability-row label { display: grid; gap: 6px; color: var(--planner-muted); font-size: 7px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.availability-row label:first-child { grid-column: 1 / -1; }
+.availability-row input, .availability-row select { width: 100%; min-width: 0; min-height: 40px; border: 1px solid rgba(237, 237, 237, .18); border-radius: 5px; background: rgba(16, 14, 14, .66); padding: 8px; color: var(--planner-white); font: 600 10px Montserrat, sans-serif; color-scheme: dark; }
+.availability-row select option { color: var(--planner-black); }
+.availability-row .icon-button { align-self: end; min-height: 40px; }
+.availability-empty { padding: 15px; border: 1px dashed rgba(237, 237, 237, .18); border-radius: 6px; color: var(--planner-muted); font-size: 10px; line-height: 1.55; text-align: center; }
+.availability-actions { display: grid; gap: 9px; margin-top: 12px; }
+.availability-actions .text-button { margin: 0; }
+.availability-message { min-height: 16px; margin: 12px 0 0; color: var(--planner-muted); font-size: 9px; line-height: 1.5; }
+.availability-message.success { color: var(--planner-success); }
+.availability-message.warning { color: var(--planner-warning); }
+
 .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .summary-grid article { min-height: 150px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; background-color: var(--planner-black); }
 .summary-grid small { color: var(--planner-muted); font-size: 8px; font-weight: 900; letter-spacing: .15em; }
 .summary-grid strong { margin: 10px 0 6px; font-size: clamp(24px, 2.3vw, 36px); line-height: 1; }
 .summary-grid span { color: var(--planner-muted); font-size: 10px; line-height: 1.5; }
 
+.broadcast-panel { background: radial-gradient(circle at top right, rgba(74,222,128,.1), transparent 38%), var(--planner-panel); }
+.broadcast-heading { display: flex; justify-content: space-between; gap: 24px; }
+.broadcast-heading .panel-heading { margin-bottom: 18px; }
+.broadcast-heading .panel-heading > span { font-size: 18px; }
+.broadcast-heading > p { max-width: 500px; margin: 0; color: var(--planner-muted); font-size: 10px; line-height: 1.65; }
+.broadcast-actions { display: grid; grid-template-columns: minmax(220px, 1fr) auto auto; gap: 10px; align-items: end; }
+.broadcast-actions label, .overlay-links label { display: grid; gap: 7px; color: var(--planner-muted); font-size: 8px; font-weight: 900; letter-spacing: .11em; text-transform: uppercase; }
+.broadcast-actions input, .copy-field input { width: 100%; min-height: 44px; border: 1px solid rgba(237,237,237,.18); border-radius: 6px; background: rgba(16,14,14,.66); padding: 10px 11px; color: var(--planner-white); font: 600 12px Montserrat,sans-serif; }
+.share-message { margin: 16px 0 0; color: var(--planner-muted); font-size: 10px; }
+.share-message.success { color: var(--planner-success); }
+.share-message.error { color: #ffb4b4; }
+.overlay-links { grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+.copy-field { display: grid; grid-template-columns: minmax(0,1fr) 70px; }
+.copy-field input { border-radius: 6px 0 0 6px; font-size: 10px; }
+.copy-field button { border: 1px solid rgba(237,237,237,.3); border-left: 0; border-radius: 0 4px 4px 0; background: var(--planner-white); color: var(--planner-black); cursor: pointer; font: 900 8px Montserrat,sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+
 .schedule-panel { padding: 0; overflow: hidden; background: var(--planner-black); }
 .schedule-heading { display: flex; justify-content: space-between; gap: 24px; padding: 24px; border-bottom: 1px solid var(--planner-line); }
 .schedule-heading .panel-heading { margin: 0; }
 .schedule-heading > p { max-width: 420px; margin: 0; color: var(--planner-muted); font-size: 10px; line-height: 1.65; }
 .table-wrap { overflow-x: auto; }
-.schedule-panel table { width: 100%; min-width: 1120px; border-collapse: collapse; }
+.schedule-panel table { width: 100%; min-width: 1240px; border-collapse: collapse; }
 .schedule-panel th { padding: 13px 10px; background: var(--planner-purple); color: var(--planner-muted); font-size: 8px; letter-spacing: .1em; text-align: left; text-transform: uppercase; }
 .schedule-panel td { padding: 8px 10px; border-top: 1px solid rgba(237, 237, 237, .1); color: var(--planner-white); font-size: 11px; white-space: nowrap; }
 .schedule-panel td:first-child { font-weight: 900; text-align: center; }
 .schedule-panel td input, .schedule-panel td select { min-height: 38px; padding: 7px 8px; font-size: 10px; }
 .schedule-panel td .notes-input { min-width: 180px; }
+.availability-badge { display: inline-flex; min-width: 82px; justify-content: center; padding: 6px 8px; border: 1px solid rgba(74, 222, 128, .36); border-radius: 99px; color: var(--planner-success); font-size: 7px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.availability-badge.conflict { border-color: rgba(244, 201, 93, .5); background: rgba(244, 201, 93, .1); color: var(--planner-warning); }
+.availability-badge.unassigned { border-color: var(--planner-line); color: var(--planner-muted); }
+.schedule-panel tr.availability-conflict td { background: rgba(244, 201, 93, .035); }
+.schedule-panel select.availability-conflict { border-color: rgba(244, 201, 93, .65); color: var(--planner-warning); }
 .empty-state { padding: 55px 24px; color: var(--planner-muted); text-align: center; }
 
 .driver-totals { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
@@ -145,6 +182,8 @@
     .driver-totals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .schedule-heading { flex-direction: column; }
     .planner-button.danger { margin-left: 0; }
+    .broadcast-heading { flex-direction: column; }
+    .broadcast-actions, .overlay-links { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {

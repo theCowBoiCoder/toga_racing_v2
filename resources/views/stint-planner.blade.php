@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Plan Toga Racing endurance stints, fuel targets, drivers and race clock times for iRacing and Le Mans Ultimate.">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     <title>Stint Planner | Toga Racing</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,7 +21,7 @@
     <nav><a class="active" href="{{ route('stint-planner') }}">Stint Planner</a><a href="{{ route('gallery') }}">Gallery</a><a href="{{ route('news') }}">News</a><a href="{{ route('join') }}">Join us</a><a href="{{ route('partners') }}">Partner</a></nav>
 </header>
 
-<main id="planner-app" data-template-url="{{ route('stint-planner.template') }}">
+<main id="planner-app" data-template-url="{{ route('stint-planner.template') }}" data-publish-url="{{ route('stint-planner.publish') }}" data-discord-url="{{ route('stint-planner.discord') }}">
     <section class="planner-hero">
         <div>
             <span class="kicker">ENDURANCE OPERATIONS</span>
@@ -72,6 +73,17 @@
                     <div class="roster-list" id="roster-list"></div>
                     <button class="text-button" id="add-driver" type="button">+ Add driver</button>
                 </section>
+
+                <section class="planner-panel availability-panel">
+                    <div class="panel-heading"><span>03</span><div><small>WHO IS FREE</small><h2>Driver availability</h2></div></div>
+                    <p class="availability-help">Add one or more windows for each driver. A driver with no windows is treated as available for the whole race.</p>
+                    <div class="availability-list" id="availability-list"></div>
+                    <div class="availability-actions">
+                        <button class="text-button" id="add-availability" type="button">+ Add availability window</button>
+                        <button class="planner-button primary" id="auto-assign" type="button">Auto assign available drivers</button>
+                    </div>
+                    <p class="availability-message" id="availability-message" aria-live="polite"></p>
+                </section>
             </aside>
 
             <div class="planner-output">
@@ -82,17 +94,34 @@
                     <article><small>RACE FUEL</small><strong id="summary-fuel">—</strong><span id="summary-laps">—</span></article>
                 </section>
 
+                <section class="planner-panel broadcast-panel">
+                    <div class="broadcast-heading">
+                        <div class="panel-heading"><span>LIVE</span><div><small>TEAM SHARE</small><h2>Discord &amp; OBS</h2></div></div>
+                        <p>Publish the latest plan, copy either URL into an OBS Browser Source, or send the schedule to your team’s Discord channel.</p>
+                    </div>
+                    <div class="broadcast-actions">
+                        <label>Team share key<input id="share-key" type="password" autocomplete="current-password" placeholder="Required to publish or send"></label>
+                        <button class="planner-button primary" id="publish-plan" type="button">Publish / update overlays</button>
+                        <button class="planner-button" id="send-discord" type="button">Send plan to Discord</button>
+                    </div>
+                    <p class="share-message" id="share-message" aria-live="polite">Publish once to generate your OBS Browser Source URLs.</p>
+                    <div class="overlay-links" id="overlay-links" hidden>
+                        <label><span>Compact overlay · 1920 × 180</span><span class="copy-field"><input id="compact-overlay-url" type="url" readonly><button type="button" data-copy-overlay="compact-overlay-url">Copy</button></span></label>
+                        <label><span>Schedule overlay · 1920 × 360</span><span class="copy-field"><input id="schedule-overlay-url" type="url" readonly><button type="button" data-copy-overlay="schedule-overlay-url">Copy</button></span></label>
+                    </div>
+                </section>
+
                 <section class="planner-panel schedule-panel">
                     <div class="schedule-heading">
-                        <div class="panel-heading"><span>03</span><div><small>LIVE PLAN</small><h2>Stint schedule</h2></div></div>
-                        <p>Assign drivers and stand-by cover. Times include the measured pit loss and roll over to the next day.</p>
+                        <div class="panel-heading"><span>04</span><div><small>LIVE PLAN</small><h2>Stint schedule</h2></div></div>
+                        <p>Assign drivers and stand-by cover. Availability conflicts are highlighted automatically.</p>
                     </div>
-                    <div class="table-wrap"><table><thead><tr><th>Stint</th><th>Driver</th><th>Stand-by</th><th>Start</th><th>End</th><th>Mins</th><th>Laps</th><th>Fuel</th><th>Start target</th><th>Notes</th></tr></thead><tbody id="schedule-body"></tbody></table></div>
+                    <div class="table-wrap"><table><thead><tr><th>Stint</th><th>Driver</th><th>Stand-by</th><th>Availability</th><th>Start</th><th>End</th><th>Mins</th><th>Laps</th><th>Fuel</th><th>Start target</th><th>Notes</th></tr></thead><tbody id="schedule-body"></tbody></table></div>
                     <div class="empty-state" id="empty-state" hidden>Enter valid race, lap and fuel values to build the schedule.</div>
                 </section>
 
                 <section class="planner-panel totals-panel">
-                    <div class="panel-heading"><span>04</span><div><small>WORKLOAD</small><h2>Driver totals</h2></div></div>
+                    <div class="panel-heading"><span>05</span><div><small>WORKLOAD</small><h2>Driver totals</h2></div></div>
                     <div class="driver-totals" id="driver-totals"></div>
                 </section>
             </div>
