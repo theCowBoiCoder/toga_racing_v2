@@ -53,7 +53,7 @@ class StintPlanController extends Controller
             'availability_url' => route('stint-availability', $stintPlan->availability_token),
             'availability' => $stintPlan->plan['availability'] ?? [],
             'availability_submitted' => $stintPlan->plan['availability_submitted'] ?? [],
-        ]);
+        ])->header('Cache-Control', 'no-store, private');
     }
 
     public function availability(string $token): View

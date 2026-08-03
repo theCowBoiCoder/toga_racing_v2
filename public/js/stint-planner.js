@@ -371,19 +371,31 @@
             plan_token: localStorage.getItem(planTokenKey),
             plan: sharePayload(),
         });
-        if (!result?.token || !result?.overlays?.compact || !result?.overlays?.schedule || !result?.availability_url) {
-            throw new Error('The server returned an incomplete publish response. Refresh the page and try again.');
+        const token = result?.token || result?.plan_token || result?.data?.token;
+        if (!token) {
+            const returned = Object.keys(result || {}).join(', ') || 'no fields';
+            throw new Error(`The publish response did not include a plan token (returned: ${returned}).`);
         }
-        localStorage.setItem(planTokenKey, result.token);
-        el('compact-overlay-url').value = result.overlays.compact;
-        el('schedule-overlay-url').value = result.overlays.schedule;
-        el('availability-form-url').value = result.availability_url;
-        state.availability = result.availability || [];
-        state.availabilitySubmitted = result.availability_submitted || [];
+        localStorage.setItem(planTokenKey, token);
+        let availabilityUrl = result.availability_url || result.data?.availability_url || '';
+        let availability = result.availability || result.data?.availability || [];
+        let availabilitySubmitted = result.availability_submitted || result.data?.availability_submitted || [];
+        if (!availabilityUrl) {
+            const synced = await postJson(plannerRoot.dataset.availabilitySyncUrl, { share_key: shareKey, plan_token: token });
+            availabilityUrl = synced.availability_url || '';
+            availability = synced.availability || availability;
+            availabilitySubmitted = synced.availability_submitted || availabilitySubmitted;
+        }
+        const overlayBase = new URL(`/stint-overlay/${encodeURIComponent(token)}`, window.location.origin);
+        el('compact-overlay-url').value = result.overlays?.compact || result.compact_overlay_url || `${overlayBase}?mode=compact`;
+        el('schedule-overlay-url').value = result.overlays?.schedule || result.schedule_overlay_url || `${overlayBase}?mode=schedule`;
+        el('availability-form-url').value = availabilityUrl;
+        state.availability = availability;
+        state.availabilitySubmitted = availabilitySubmitted;
         renderAvailability(); render(); savePlan('Plan published');
         el('overlay-links').hidden = false;
         shareStatus('Overlays published. OBS will refresh them automatically.', 'success');
-        return result;
+        return { ...result, token };
     }
 
     async function syncAvailability() {
