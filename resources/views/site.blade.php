@@ -19,7 +19,7 @@
     </script>
 </head>
 <body>
-<header class="header"><a class="brand" href="{{ route('home') }}"><img src="{{ asset('images/logo.png') }}" alt=""><span>TOGA RACING</span></a><button class="menu" aria-label="Toggle menu">☰</button><nav><a href="{{ route('gallery') }}">Gallery</a><a href="{{ route('news') }}">News</a><a href="{{ route('join') }}">Join us</a><a href="{{ route('partners') }}">Become a Partner</a><a class="social" href="https://www.youtube.com/@TogaRacing">YouTube ↗</a></nav></header>
+<header class="header"><a class="brand" href="{{ route('home') }}"><img src="{{ asset('images/logo.png') }}" alt=""><span>TOGA RACING</span></a><button class="menu" aria-label="Toggle menu">☰</button><nav><a href="{{ route('stint-planner') }}">Stint Planner</a><a href="{{ route('gallery') }}">Gallery</a><a href="{{ route('news') }}">News</a><a href="{{ route('join') }}">Join us</a><a href="{{ route('partners') }}">Partner</a><a class="social" href="https://www.youtube.com/@TogaRacing">YouTube ↗</a></nav></header>
 
 @if($page === 'home')
 <main>
@@ -44,7 +44,7 @@
 @else
 <main><article class="article"><span class="kicker">{{ $article['date'] }} · TEAM NEWS</span><h1>{{ $article['title'] }}</h1><p class="lead">{{ $article['excerpt'] }}</p><div class="article-copy"><p>{{ $article['body'] }}</p></div><a class="button ghost" href="{{ route('news') }}">← All stories</a></article></main>
 @endif
-<footer><div><span class="footer-logo">TOGA RACING</span><p>Precision in Every Turn</p></div><div><a href="{{ route('gallery') }}">Gallery</a><a href="{{ route('news') }}">News</a><a href="{{ route('join') }}">Join us</a><a href="{{ route('partners') }}">Partners</a></div><small>© {{ date('Y') }} Toga Racing. All rights reserved.</small></footer>
+<footer><div><span class="footer-logo">TOGA RACING</span><p>Precision in Every Turn</p></div><div><a href="{{ route('stint-planner') }}">Stint planner</a><a href="{{ route('gallery') }}">Gallery</a><a href="{{ route('news') }}">News</a><a href="{{ route('join') }}">Join us</a><a href="{{ route('partners') }}">Partners</a></div><small>© {{ date('Y') }} Toga Racing. All rights reserved.</small></footer>
 <script>
 document.querySelector('.menu').onclick=()=>document.querySelector('nav').classList.toggle('open');
 </script>

@@ -24,6 +24,14 @@ Route::get('/', fn (InstagramFeed $instagram) => view('site', ['page' => 'home',
 Route::get('/join', fn () => view('site', ['page' => 'join']))->name('join');
 Route::post('/join', [EnquiryController::class, 'driver'])->middleware('throttle:5,10')->name('join.submit');
 Route::get('/partners', fn () => view('site', ['page' => 'partners']))->name('partners');
+Route::view('/stint-planner', 'stint-planner')->name('stint-planner');
+Route::get('/stint-planner/excel-template', function () {
+    $path = storage_path('app/private/downloads/Toga_Racing_Stint_Planner.xlsx');
+
+    abort_unless(is_file($path), 404);
+
+    return response()->download($path, 'Toga_Racing_Stint_Planner.xlsx');
+})->name('stint-planner.template');
 Route::post('/partners', [EnquiryController::class, 'sponsor'])->middleware('throttle:5,10')->name('partners.submit');
 Route::get('/enquiry-received/{type}', fn (string $type) => in_array($type, ['driver', 'sponsor'], true)
     ? view('site', ['page' => 'thanks', 'enquiryType' => $type])

@@ -1,0 +1,159 @@
+:root {
+    --planner-black: #100e0e;
+    --planner-purple: #1a0b4c;
+    --planner-panel: #26145c;
+    --planner-white: #ededed;
+    --planner-muted: #c9c3da;
+    --planner-line: rgba(237, 237, 237, .16);
+    --planner-success: #4ade80;
+    --planner-warning: #f4c95d;
+}
+
+.planner-page { background: var(--planner-black); color: var(--planner-white); }
+.planner-page .header nav .active { color: #fff; }
+
+.planner-hero {
+    min-height: 520px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    align-items: end;
+    gap: 48px;
+    padding: 160px max(5vw, 28px) 72px;
+    background:
+        linear-gradient(90deg, rgba(26, 11, 76, .97) 4%, rgba(26, 11, 76, .84) 48%, rgba(16, 14, 14, .52)),
+        linear-gradient(0deg, var(--planner-black), transparent 55%),
+        url('/images/gallery/race-6.jpg') center 58% / cover;
+}
+
+.planner-hero > div:first-child { max-width: 900px; }
+.planner-hero h1 {
+    margin: 20px 0 16px;
+    font-size: clamp(58px, 8vw, 112px);
+    font-weight: 900;
+    line-height: .84;
+    letter-spacing: -.07em;
+}
+.planner-hero h1 em { color: var(--planner-white); font-style: normal; }
+.planner-hero p { max-width: 620px; color: var(--planner-muted); font-size: 15px; line-height: 1.8; }
+
+.hero-status {
+    display: grid;
+    gap: 8px;
+    padding: 24px;
+    border: 1px solid var(--planner-line);
+    border-radius: 8px;
+    background: rgba(16, 14, 14, .8);
+    backdrop-filter: blur(12px);
+}
+.hero-status span, .hero-status small { color: var(--planner-muted); font-size: 9px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.hero-status strong { font-size: 25px; }
+
+.planner-shell { max-width: 1540px; margin: auto; padding: 34px max(3vw, 22px) 110px; }
+.planner-toolbar { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 24px; }
+.planner-button {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px;
+    border: 1px solid rgba(237, 237, 237, .28);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--planner-white);
+    cursor: pointer;
+    font: 800 9px Montserrat, sans-serif;
+    letter-spacing: .1em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: .2s ease;
+}
+.planner-button:hover, .planner-button:focus-visible { border-color: var(--planner-white); background: var(--planner-white); color: var(--planner-black); transform: translateY(-2px); }
+.planner-button.primary { background: var(--planner-white); color: var(--planner-black); }
+.planner-button.primary:hover { background: transparent; color: var(--planner-white); }
+.planner-button.danger { margin-left: auto; color: #ffb4b4; }
+.planner-button:focus-visible, .text-button:focus-visible, .planner-panel input:focus, .planner-panel select:focus, .schedule-panel td input:focus, .schedule-panel td select:focus { outline: 2px solid var(--planner-white); outline-offset: 2px; }
+
+.planner-layout { display: grid; grid-template-columns: minmax(320px, 440px) minmax(0, 1fr); gap: 18px; align-items: start; }
+.planner-controls, .planner-output { display: grid; gap: 18px; }
+.planner-controls { position: sticky; top: 100px; }
+.planner-panel, .summary-grid article {
+    border: 1px solid var(--planner-line);
+    border-radius: 8px;
+    background: radial-gradient(circle at top right, rgba(237, 237, 237, .07), transparent 42%), var(--planner-panel);
+    box-shadow: 0 24px 65px rgba(0, 0, 0, .18);
+}
+.planner-panel { padding: 24px; }
+
+.panel-heading { display: flex; align-items: center; gap: 13px; margin-bottom: 22px; }
+.panel-heading > span { color: rgba(237, 237, 237, .28); font-size: 28px; font-weight: 900; letter-spacing: -.04em; }
+.panel-heading small { color: var(--planner-muted); font-size: 8px; font-weight: 900; letter-spacing: .17em; }
+.panel-heading h2 { margin: 3px 0 0; font-size: 22px; letter-spacing: -.025em; }
+
+.control-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.control-grid label { display: grid; gap: 7px; color: var(--planner-muted); font-size: 8px; font-weight: 900; letter-spacing: .11em; text-transform: uppercase; }
+.control-grid .wide { grid-column: 1 / -1; }
+.control-grid input, .control-grid select, .roster-row input, .schedule-panel td input, .schedule-panel td select {
+    width: 100%; min-height: 44px; border: 1px solid rgba(237, 237, 237, .18); border-radius: 6px; background: rgba(16, 14, 14, .66); padding: 10px 11px; color: var(--planner-white); font: 600 12px Montserrat, sans-serif;
+}
+.control-grid input[readonly] { color: var(--planner-muted); background: rgba(16, 14, 14, .35); }
+.control-grid select option, .schedule-panel select option { color: var(--planner-black); }
+.source-note { margin: 17px 0 0; color: var(--planner-muted); font-size: 10px; line-height: 1.65; }
+
+.roster-list { display: grid; gap: 8px; }
+.roster-row { display: grid; grid-template-columns: 28px minmax(0, 1fr) 44px; gap: 8px; align-items: center; }
+.roster-row > span { color: var(--planner-muted); font-size: 10px; font-weight: 900; text-align: center; }
+.icon-button { min-height: 44px; border: 1px solid var(--planner-line); border-radius: 4px; background: transparent; color: #ffb4b4; cursor: pointer; }
+.text-button { min-height: 44px; margin-top: 12px; border: 0; background: transparent; color: var(--planner-white); cursor: pointer; font: 800 9px Montserrat, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+
+.summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.summary-grid article { min-height: 150px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; background-color: var(--planner-black); }
+.summary-grid small { color: var(--planner-muted); font-size: 8px; font-weight: 900; letter-spacing: .15em; }
+.summary-grid strong { margin: 10px 0 6px; font-size: clamp(24px, 2.3vw, 36px); line-height: 1; }
+.summary-grid span { color: var(--planner-muted); font-size: 10px; line-height: 1.5; }
+
+.schedule-panel { padding: 0; overflow: hidden; background: var(--planner-black); }
+.schedule-heading { display: flex; justify-content: space-between; gap: 24px; padding: 24px; border-bottom: 1px solid var(--planner-line); }
+.schedule-heading .panel-heading { margin: 0; }
+.schedule-heading > p { max-width: 420px; margin: 0; color: var(--planner-muted); font-size: 10px; line-height: 1.65; }
+.table-wrap { overflow-x: auto; }
+.schedule-panel table { width: 100%; min-width: 1120px; border-collapse: collapse; }
+.schedule-panel th { padding: 13px 10px; background: var(--planner-purple); color: var(--planner-muted); font-size: 8px; letter-spacing: .1em; text-align: left; text-transform: uppercase; }
+.schedule-panel td { padding: 8px 10px; border-top: 1px solid rgba(237, 237, 237, .1); color: var(--planner-white); font-size: 11px; white-space: nowrap; }
+.schedule-panel td:first-child { font-weight: 900; text-align: center; }
+.schedule-panel td input, .schedule-panel td select { min-height: 38px; padding: 7px 8px; font-size: 10px; }
+.schedule-panel td .notes-input { min-width: 180px; }
+.empty-state { padding: 55px 24px; color: var(--planner-muted); text-align: center; }
+
+.driver-totals { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.driver-total { padding: 16px; border: 1px solid var(--planner-line); border-radius: 6px; background: rgba(16, 14, 14, .5); }
+.driver-total strong { display: block; overflow: hidden; margin-bottom: 13px; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.driver-total dl { display: grid; grid-template-columns: 1fr auto; gap: 7px; margin: 0; }
+.driver-total dt { color: var(--planner-muted); font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
+.driver-total dd { margin: 0; font-size: 10px; font-weight: 800; }
+
+@media (max-width: 1180px) {
+    .planner-layout { grid-template-columns: 1fr; }
+    .planner-controls { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+    .planner-hero { min-height: 610px; grid-template-columns: 1fr; gap: 25px; padding-top: 145px; }
+    .planner-hero h1 { font-size: clamp(48px, 15vw, 72px); }
+    .planner-controls { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+    .driver-totals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .schedule-heading { flex-direction: column; }
+    .planner-button.danger { margin-left: 0; }
+}
+
+@media (max-width: 480px) {
+    .control-grid, .summary-grid, .driver-totals { grid-template-columns: 1fr; }
+    .control-grid .wide { grid-column: auto; }
+    .planner-panel { padding: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .planner-button { transition: none; }
+    .planner-button:hover { transform: none; }
+}
