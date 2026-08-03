@@ -11,6 +11,8 @@ class StintPlannerTest extends TestCase
         $this->get(route('stint-planner'))
             ->assertOk()
             ->assertSee('BUILD THE')
+            ->assertSee('Driver availability')
+            ->assertSee('Auto assign available drivers')
             ->assertSee('stint-planner.js');
     }
 

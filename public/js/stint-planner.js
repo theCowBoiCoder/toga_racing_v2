@@ -185,7 +185,7 @@
     }
 
     function availabilityWindows(driver) {
-        return state.availability.filter((window) => window.driver === driver && window.from && window.to);
+        return state.availability.filter((window) => window.driver === driver);
     }
 
     function isDriverAvailable(driver, start, end) {
