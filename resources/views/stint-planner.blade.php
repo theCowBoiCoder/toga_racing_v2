@@ -21,7 +21,7 @@
     <nav><a class="active" href="{{ route('stint-planner') }}">Stint Planner</a><a href="{{ route('gallery') }}">Gallery</a><a href="{{ route('news') }}">News</a><a href="{{ route('join') }}">Join us</a><a href="{{ route('partners') }}">Partner</a></nav>
 </header>
 
-<main id="planner-app" data-template-url="{{ route('stint-planner.template') }}" data-publish-url="{{ route('stint-planner.publish') }}" data-discord-url="{{ route('stint-planner.discord') }}">
+<main id="planner-app" data-template-url="{{ route('stint-planner.template') }}" data-publish-url="{{ route('stint-planner.publish') }}" data-discord-url="{{ route('stint-planner.discord') }}" data-availability-sync-url="{{ route('stint-planner.availability-sync') }}">
     <section class="planner-hero">
         <div>
             <span class="kicker">ENDURANCE OPERATIONS</span>
@@ -75,11 +75,11 @@
                 </section>
 
                 <section class="planner-panel availability-panel">
-                    <div class="panel-heading"><span>03</span><div><small>WHO IS FREE</small><h2>Driver availability</h2></div></div>
-                    <p class="availability-help">Add one or more windows for each driver. A driver with no windows is treated as available for the whole race.</p>
-                    <div class="availability-list" id="availability-list"></div>
+                    <div class="panel-heading"><span>03</span><div><small>DRIVER RESPONSES</small><h2>Availability</h2></div></div>
+                    <p class="availability-help">Publish the plan, then send the separate availability link to the drivers. Refresh here after they respond.</p>
+                    <div class="availability-summary" id="availability-summary"></div>
                     <div class="availability-actions">
-                        <button class="text-button" id="add-availability" type="button">+ Add availability window</button>
+                        <button class="planner-button" id="sync-availability" type="button">Refresh driver responses</button>
                         <button class="planner-button primary" id="auto-assign" type="button">Auto assign available drivers</button>
                     </div>
                     <p class="availability-message" id="availability-message" aria-live="polite"></p>
@@ -106,6 +106,7 @@
                     </div>
                     <p class="share-message" id="share-message" aria-live="polite">Publish once to generate your OBS Browser Source URLs.</p>
                     <div class="overlay-links" id="overlay-links" hidden>
+                        <label class="wide"><span>Driver availability form · send this link to the team</span><span class="copy-field"><input id="availability-form-url" type="url" readonly><button type="button" data-copy-overlay="availability-form-url">Copy</button></span></label>
                         <label><span>Compact overlay · 1920 × 180</span><span class="copy-field"><input id="compact-overlay-url" type="url" readonly><button type="button" data-copy-overlay="compact-overlay-url">Copy</button></span></label>
                         <label><span>Schedule overlay · 1920 × 360</span><span class="copy-field"><input id="schedule-overlay-url" type="url" readonly><button type="button" data-copy-overlay="schedule-overlay-url">Copy</button></span></label>
                     </div>

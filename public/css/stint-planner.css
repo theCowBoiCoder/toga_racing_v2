@@ -106,6 +106,12 @@
 .text-button { min-height: 44px; margin-top: 12px; border: 0; background: transparent; color: var(--planner-white); cursor: pointer; font: 800 9px Montserrat, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
 
 .availability-help { margin: -7px 0 17px; color: var(--planner-muted); font-size: 10px; line-height: 1.65; }
+.availability-summary { display: grid; gap: 8px; }
+.availability-response { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 11px 12px; border: 1px solid var(--planner-line); border-radius: 6px; background: rgba(16, 14, 14, .42); }
+.availability-response strong { overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.availability-response span { color: var(--planner-muted); font-size: 8px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.availability-response span.received { color: var(--planner-success); }
+.availability-response span.unavailable { color: var(--planner-warning); }
 .availability-list { display: grid; gap: 10px; }
 .availability-row { display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 8px; padding: 12px; border: 1px solid var(--planner-line); border-radius: 6px; background: rgba(16, 14, 14, .42); }
 .availability-row-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
@@ -139,6 +145,7 @@
 .share-message.success { color: var(--planner-success); }
 .share-message.error { color: #ffb4b4; }
 .overlay-links { grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+.overlay-links .wide { grid-column: 1 / -1; }
 .copy-field { display: grid; grid-template-columns: minmax(0,1fr) 70px; }
 .copy-field input { border-radius: 6px 0 0 6px; font-size: 10px; }
 .copy-field button { border: 1px solid rgba(237,237,237,.3); border-left: 0; border-radius: 0 4px 4px 0; background: var(--planner-white); color: var(--planner-black); cursor: pointer; font: 900 8px Montserrat,sans-serif; letter-spacing: .1em; text-transform: uppercase; }

@@ -60,7 +60,7 @@
         raceDate: '2026-07-11', startTime: '13:45', raceMins: 1440, lapSecs: 138,
         fuelPerLap: 4, usableCapacity: 101, reserveLaps: 2, maxStint: 56, pitLoss: 60,
         drivers: ['Hayden Sweet', 'Stijn Donckerwolke', 'Mitchell Sterrenberg', 'Lukas James', 'Konrad Wasowicz', 'Lukas Küthe', 'Troy-Fraser McGonigal', 'Jordan McGonigal'],
-        assignments: [], availability: [],
+        assignments: [], availability: [], availabilitySubmitted: [],
     };
 
     const fields = {
@@ -77,7 +77,7 @@
     function loadState() {
         try {
             const stored = JSON.parse(localStorage.getItem(storageKey));
-            return stored ? { ...defaults, ...stored, drivers: stored.drivers?.length ? stored.drivers : defaults.drivers, assignments: stored.assignments || [], availability: stored.availability || [] } : structuredClone(defaults);
+            return stored ? { ...defaults, ...stored, drivers: stored.drivers?.length ? stored.drivers : defaults.drivers, assignments: stored.assignments || [], availability: stored.availability || [], availabilitySubmitted: stored.availabilitySubmitted || [] } : structuredClone(defaults);
         } catch (_) {
             return structuredClone(defaults);
         }
@@ -178,8 +178,8 @@
     function driverOptions(selected, stint = null) {
         const options = [''].concat(state.drivers.filter(Boolean));
         return options.map((name) => {
-            const unavailable = name && stint && !isDriverAvailable(name, stint.start, stint.end);
-            const label = name ? `${name}${unavailable ? ' - unavailable' : ''}` : 'Unassigned';
+            const status = name && stint ? availabilityStatus({ ...stint, driver: name }) : null;
+            const label = name ? `${name}${status && status.label !== 'Available' ? ` - ${status.label.toLowerCase()}` : ''}` : 'Unassigned';
             return `<option value="${escapeHtml(name)}"${name === selected ? ' selected' : ''}>${escapeHtml(label)}</option>`;
         }).join('');
     }
@@ -190,8 +190,9 @@
 
     function isDriverAvailable(driver, start, end) {
         if (!driver) return false;
+        if (!state.availabilitySubmitted.includes(driver)) return false;
         const windows = availabilityWindows(driver);
-        if (!windows.length) return true;
+        if (!windows.length) return false;
         return windows.some((window) => {
             const from = new Date(window.from);
             const to = new Date(window.to);
@@ -201,6 +202,8 @@
 
     function availabilityStatus(stint) {
         if (!stint.driver) return { label: 'Unassigned', className: 'unassigned' };
+        if (!state.availabilitySubmitted.includes(stint.driver)) return { label: 'Pending', className: 'unassigned' };
+        if (!availabilityWindows(stint.driver).length) return { label: 'Unavailable', className: 'conflict' };
         return isDriverAvailable(stint.driver, stint.start, stint.end)
             ? { label: 'Available', className: '' }
             : { label: 'Conflict', className: 'conflict' };
@@ -231,31 +234,14 @@
             <div class="roster-row"><span>${String(index + 1).padStart(2, '0')}</span><input data-driver-index="${index}" value="${escapeHtml(driver)}" aria-label="Driver ${index + 1} name"><button class="icon-button" data-remove-driver="${index}" type="button" aria-label="Remove ${escapeHtml(driver || `driver ${index + 1}`)}">×</button></div>`).join('');
     }
 
-    function availabilityDriverOptions(selected) {
-        return state.drivers.filter(Boolean).map((driver) => `<option value="${escapeHtml(driver)}"${driver === selected ? ' selected' : ''}>${escapeHtml(driver)}</option>`).join('');
-    }
-
     function renderAvailability() {
-        if (!state.availability.length) {
-            el('availability-list').innerHTML = '<div class="availability-empty">No restrictions added. Every rostered driver is currently available for the full race.</div>';
-            return;
-        }
-        el('availability-list').innerHTML = state.availability.map((window, index) => `
-            <div class="availability-row">
-                <div class="availability-row-fields">
-                    <label>Driver<select data-availability-index="${index}" data-availability-field="driver">${availabilityDriverOptions(window.driver)}</select></label>
-                    <label>Available from<input type="datetime-local" data-availability-index="${index}" data-availability-field="from" value="${escapeHtml(window.from || '')}"></label>
-                    <label>Available until<input type="datetime-local" data-availability-index="${index}" data-availability-field="to" value="${escapeHtml(window.to || '')}"></label>
-                </div>
-                <button class="icon-button" data-remove-availability="${index}" type="button" aria-label="Remove availability window">&times;</button>
-            </div>`).join('');
-    }
-
-    function defaultAvailabilityWindow() {
-        const start = new Date(`${state.raceDate}T${state.startTime}:00`);
-        const validStart = Number.isFinite(start.getTime()) ? start : new Date();
-        const finish = new Date(validStart.getTime() + Math.max(state.raceMins, 60) * 60000);
-        return { driver: state.drivers.find(Boolean) || '', from: dateTimeInputValue(validStart), to: dateTimeInputValue(finish) };
+        el('availability-summary').innerHTML = state.drivers.filter(Boolean).map((driver) => {
+            const submitted = state.availabilitySubmitted.includes(driver);
+            const windows = availabilityWindows(driver);
+            const label = !submitted ? 'Waiting for response' : windows.length ? `${windows.length} window${windows.length === 1 ? '' : 's'} received` : 'Not available';
+            const className = submitted ? (windows.length ? 'received' : 'unavailable') : '';
+            return `<div class="availability-response"><strong>${escapeHtml(driver)}</strong><span class="${className}">${label}</span></div>`;
+        }).join('');
     }
 
     function autoAssignAvailableDrivers() {
@@ -353,6 +339,7 @@
                 driver: window.driver, from: new Date(window.from).toISOString(), to: new Date(window.to).toISOString(),
                 from_label: formatClock(new Date(window.from)), to_label: formatClock(new Date(window.to)),
             })),
+            availability_submitted: state.availabilitySubmitted,
             schedule: result.schedule.map((stint) => ({
                 stint: stint.index + 1, driver: stint.driver || null, standby: stint.standby || null,
                 start: stint.start.toISOString(), end: stint.end.toISOString(), start_label: formatClock(stint.start), end_label: formatClock(stint.end),
@@ -385,9 +372,29 @@
         localStorage.setItem(planTokenKey, result.token);
         el('compact-overlay-url').value = result.overlays.compact;
         el('schedule-overlay-url').value = result.overlays.schedule;
+        el('availability-form-url').value = result.availability_url;
+        state.availability = result.availability || [];
+        state.availabilitySubmitted = result.availability_submitted || [];
+        renderAvailability(); render(); savePlan('Plan published');
         el('overlay-links').hidden = false;
         shareStatus('Overlays published. OBS will refresh them automatically.', 'success');
         return result;
+    }
+
+    async function syncAvailability() {
+        const shareKey = el('share-key').value;
+        const planToken = localStorage.getItem(planTokenKey);
+        if (!shareKey) throw new Error('Enter the team share key first.');
+        if (!planToken) throw new Error('Publish the plan first to create the driver availability link.');
+        const result = await postJson(plannerRoot.dataset.availabilitySyncUrl, { share_key: shareKey, plan_token: planToken });
+        state.availability = result.availability || [];
+        state.availabilitySubmitted = result.availability_submitted || [];
+        el('availability-form-url').value = result.availability_url;
+        el('overlay-links').hidden = false;
+        renderAvailability(); render(); savePlan('Driver responses refreshed');
+        const received = state.availabilitySubmitted.length;
+        el('availability-message').textContent = `${received} of ${state.drivers.filter(Boolean).length} drivers have responded.`;
+        el('availability-message').className = `availability-message ${received ? 'success' : 'warning'}`;
     }
 
     async function sendDiscord() {
@@ -408,7 +415,7 @@
         reader.onload = () => {
             try {
                 const imported = JSON.parse(reader.result);
-                state = { ...defaults, ...imported, drivers: imported.drivers?.length ? imported.drivers : defaults.drivers, assignments: imported.assignments || [], availability: imported.availability || [] };
+                state = { ...defaults, ...imported, drivers: imported.drivers?.length ? imported.drivers : defaults.drivers, assignments: imported.assignments || [], availability: imported.availability || [], availabilitySubmitted: imported.availabilitySubmitted || [] };
                 syncInputs(); renderRoster(); renderAvailability(); render(); savePlan('Backup restored');
             } catch (_) {
                 setStatus('Restore failed', 'Choose a valid Toga planner JSON backup');
@@ -457,6 +464,7 @@
         const nextName = event.target.value;
         state.drivers[index] = nextName;
         state.availability.forEach((window) => { if (window.driver === previousName) window.driver = nextName; });
+        state.availabilitySubmitted = state.availabilitySubmitted.map((driver) => driver === previousName ? nextName : driver);
         state.assignments.forEach((assignment) => {
             if (assignment.driver === previousName) assignment.driver = nextName;
             if (assignment.standby === previousName) assignment.standby = nextName;
@@ -469,6 +477,7 @@
         const removedName = state.drivers[index];
         state.drivers.splice(index, 1);
         state.availability = state.availability.filter((window) => window.driver !== removedName);
+        state.availabilitySubmitted = state.availabilitySubmitted.filter((driver) => driver !== removedName);
         state.assignments.forEach((assignment) => {
             if (assignment.driver === removedName) assignment.driver = '';
             if (assignment.standby === removedName) assignment.standby = '';
@@ -476,21 +485,11 @@
         renderRoster(); renderAvailability(); render(); queueSave();
     });
     el('add-driver').addEventListener('click', () => { if (state.drivers.length < 12) { state.drivers.push(`Driver ${state.drivers.length + 1}`); renderRoster(); renderAvailability(); render(); queueSave(); } });
-    el('availability-list').addEventListener('input', (event) => {
-        const index = Number(event.target.dataset.availabilityIndex);
-        const field = event.target.dataset.availabilityField;
-        if (!Number.isInteger(index) || !field || !state.availability[index]) return;
-        state.availability[index][field] = event.target.value;
-        render(); queueSave();
-    });
-    el('availability-list').addEventListener('click', (event) => {
-        const index = Number(event.target.dataset.removeAvailability);
-        if (!Number.isInteger(index)) return;
-        state.availability.splice(index, 1); renderAvailability(); render(); queueSave();
-    });
-    el('add-availability').addEventListener('click', () => {
-        if (!state.drivers.some(Boolean)) return;
-        state.availability.push(defaultAvailabilityWindow()); renderAvailability(); render(); queueSave();
+    el('sync-availability').addEventListener('click', async () => {
+        try { await syncAvailability(); } catch (error) {
+            el('availability-message').textContent = error.message;
+            el('availability-message').className = 'availability-message warning';
+        }
     });
     el('auto-assign').addEventListener('click', autoAssignAvailableDrivers);
     el('save-plan').addEventListener('click', () => savePlan());

@@ -19,11 +19,28 @@ class StintPlanController extends Controller
         $validated = $this->validatePlan($request);
         $token = $request->string('plan_token')->toString();
         $stintPlan = $token ? StintPlan::where('token', $token)->first() : null;
+        $plan = $validated['plan'];
 
         if ($stintPlan) {
-            $stintPlan->update(['plan' => $validated['plan']]);
+            $current = $stintPlan->plan;
+            $drivers = $plan['drivers'] ?? [];
+            $submitted = array_values(array_intersect($current['availability_submitted'] ?? [], $drivers));
+            $plan['availability_submitted'] = $submitted;
+            $plan['availability'] = collect($current['availability'] ?? [])->filter(
+                fn (array $window) => in_array($window['driver'] ?? '', $submitted, true)
+            )->values()->all();
+            $stintPlan->update([
+                'availability_token' => $stintPlan->availability_token ?: (string) Str::uuid(),
+                'plan' => $plan,
+            ]);
         } else {
-            $stintPlan = StintPlan::create(['token' => (string) Str::uuid(), 'plan' => $validated['plan']]);
+            $plan['availability'] = [];
+            $plan['availability_submitted'] = [];
+            $stintPlan = StintPlan::create([
+                'token' => (string) Str::uuid(),
+                'availability_token' => (string) Str::uuid(),
+                'plan' => $plan,
+            ]);
         }
 
         return response()->json([
@@ -33,6 +50,56 @@ class StintPlanController extends Controller
                 'compact' => route('stint-overlay', ['token' => $stintPlan->token, 'mode' => 'compact']),
                 'schedule' => route('stint-overlay', ['token' => $stintPlan->token, 'mode' => 'schedule']),
             ],
+            'availability_url' => route('stint-availability', $stintPlan->availability_token),
+            'availability' => $stintPlan->plan['availability'] ?? [],
+            'availability_submitted' => $stintPlan->plan['availability_submitted'] ?? [],
+        ]);
+    }
+
+    public function availability(string $token): View
+    {
+        $stintPlan = StintPlan::where('availability_token', $token)->firstOrFail();
+
+        return view('stint-availability', ['stintPlan' => $stintPlan]);
+    }
+
+    public function saveAvailability(string $token, Request $request): JsonResponse
+    {
+        $stintPlan = StintPlan::where('availability_token', $token)->firstOrFail();
+        $data = $request->validate([
+            'driver' => ['required', 'string', 'max:120'],
+            'windows' => ['present', 'array', 'max:12'],
+            'windows.*.from' => ['required', 'date'],
+            'windows.*.to' => ['required', 'date', 'after:windows.*.from'],
+            'windows.*.from_label' => ['required', 'string', 'max:40'],
+            'windows.*.to_label' => ['required', 'string', 'max:40'],
+        ]);
+        $plan = $stintPlan->plan;
+        abort_unless(in_array($data['driver'], $plan['drivers'] ?? [], true), 422, 'Choose a driver from this race roster.');
+
+        $availability = collect($plan['availability'] ?? [])->reject(fn (array $window) => ($window['driver'] ?? '') === $data['driver']);
+        foreach ($data['windows'] as $window) {
+            $availability->push(['driver' => $data['driver'], ...$window]);
+        }
+        $submitted = collect($plan['availability_submitted'] ?? [])->push($data['driver'])->unique()->values()->all();
+        $plan['availability'] = $availability->values()->all();
+        $plan['availability_submitted'] = $submitted;
+        $stintPlan->update(['plan' => $plan]);
+
+        return response()->json(['message' => 'Your availability has been saved.', 'availability' => $plan['availability'], 'availability_submitted' => $submitted]);
+    }
+
+    public function syncAvailability(Request $request): JsonResponse
+    {
+        $this->authorizeShare($request);
+        $data = $request->validate(['plan_token' => ['required', 'uuid']]);
+        $stintPlan = StintPlan::where('token', $data['plan_token'])->firstOrFail();
+        $plan = $stintPlan->plan;
+
+        return response()->json([
+            'availability' => $plan['availability'] ?? [],
+            'availability_submitted' => $plan['availability_submitted'] ?? [],
+            'availability_url' => route('stint-availability', $stintPlan->availability_token),
         ]);
     }
 
@@ -98,6 +165,8 @@ class StintPlanController extends Controller
             'plan.availability.*.to' => ['required', 'date', 'after:plan.availability.*.from'],
             'plan.availability.*.from_label' => ['required', 'string', 'max:40'],
             'plan.availability.*.to_label' => ['required', 'string', 'max:40'],
+            'plan.availability_submitted' => ['sometimes', 'array', 'max:20'],
+            'plan.availability_submitted.*' => ['string', 'max:120'],
             'plan.schedule' => ['required', 'array', 'max:60'],
             'plan.schedule.*.stint' => ['required', 'integer', 'between:1,60'],
             'plan.schedule.*.driver' => ['nullable', 'string', 'max:120'],

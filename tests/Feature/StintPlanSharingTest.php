@@ -24,7 +24,7 @@ class StintPlanSharingTest extends TestCase
         $response = $this->postJson(route('stint-planner.publish'), [
             'share_key' => 'team-secret',
             'plan' => $this->planPayload(),
-        ])->assertOk()->assertJsonStructure(['token', 'updated_at', 'overlays' => ['compact', 'schedule']]);
+        ])->assertOk()->assertJsonStructure(['token', 'updated_at', 'overlays' => ['compact', 'schedule'], 'availability_url']);
 
         $token = $response->json('token');
         $this->assertDatabaseHas(StintPlan::class, ['token' => $token]);
@@ -50,6 +50,31 @@ class StintPlanSharingTest extends TestCase
         Http::assertSent(fn ($request) => str_contains($request->url(), '/channels/stint-channel/messages')
             && $request['embeds'][0]['title'] === '🏁 24h Spa'
             && $request['allowed_mentions']['parse'] === []);
+    }
+
+    public function test_drivers_can_submit_availability_and_the_planner_can_sync_it(): void
+    {
+        $published = $this->postJson(route('stint-planner.publish'), [
+            'share_key' => 'team-secret',
+            'plan' => $this->planPayload(),
+        ])->assertOk();
+
+        $availabilityUrl = $published->json('availability_url');
+        $this->get($availabilityUrl)->assertOk()->assertSee('When can you drive?')->assertSee('noindex');
+        $this->postJson($availabilityUrl, [
+            'driver' => 'Stijn Donckerwolke',
+            'windows' => [[
+                'from' => '2026-08-15T18:00:00.000Z', 'to' => '2026-08-16T02:00:00.000Z',
+                'from_label' => 'Sat 15 Aug, 19:00', 'to_label' => 'Sun 16 Aug, 03:00',
+            ]],
+        ])->assertOk()->assertJsonPath('availability_submitted.0', 'Stijn Donckerwolke');
+
+        $this->postJson(route('stint-planner.availability-sync'), [
+            'share_key' => 'team-secret',
+            'plan_token' => $published->json('token'),
+        ])->assertOk()
+            ->assertJsonFragment(['driver' => 'Stijn Donckerwolke'])
+            ->assertJsonPath('availability_submitted.0', 'Stijn Donckerwolke');
     }
 
     private function planPayload(): array

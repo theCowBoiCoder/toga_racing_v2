@@ -62,13 +62,17 @@ class DiscordNotifier
             ['name' => 'Start', 'value' => $this->clean(($plan['race_date'] ?? '').' '.($plan['start_time'] ?? '').' local'), 'inline' => true],
         ];
 
+        if ($stintPlan->availability_token) {
+            $fields[] = ['name' => 'Driver availability', 'value' => '[Submit or update your times]('.route('stint-availability', $stintPlan->availability_token).')'];
+        }
+
         $availability = collect($plan['availability'] ?? [])->groupBy('driver')->map(function ($windows, $driver) {
             $times = $windows->map(fn (array $window) => ($window['from_label'] ?? '?').' - '.($window['to_label'] ?? '?'))->implode("\n");
 
             return '**'.$this->clean($driver, 70).'** · '.$times;
         })->implode("\n");
         if ($availability !== '') {
-            $fields[] = ['name' => 'Driver availability', 'value' => mb_substr($availability, 0, 1024)];
+            $fields[] = ['name' => 'Availability received', 'value' => mb_substr($availability, 0, 1024)];
         }
 
         foreach ($schedule->chunk(8) as $chunkIndex => $chunk) {

@@ -28,6 +28,7 @@ Route::get('/partners', fn () => view('site', ['page' => 'partners']))->name('pa
 Route::view('/stint-planner', 'stint-planner')->name('stint-planner');
 Route::post('/stint-planner/publish', [StintPlanController::class, 'publish'])->middleware('throttle:20,1')->name('stint-planner.publish');
 Route::post('/stint-planner/discord', [StintPlanController::class, 'discord'])->middleware('throttle:5,1')->name('stint-planner.discord');
+Route::post('/stint-planner/availability-sync', [StintPlanController::class, 'syncAvailability'])->middleware('throttle:20,1')->name('stint-planner.availability-sync');
 Route::get('/stint-planner/excel-template', function () {
     $path = storage_path('app/private/downloads/Toga_Racing_Stint_Planner.xlsx');
 
@@ -37,6 +38,8 @@ Route::get('/stint-planner/excel-template', function () {
 })->name('stint-planner.template');
 Route::get('/stint-overlay/{token}', [StintPlanController::class, 'overlay'])->name('stint-overlay');
 Route::get('/stint-overlay/{token}/data', [StintPlanController::class, 'data'])->name('stint-overlay.data');
+Route::get('/stint-availability/{token}', [StintPlanController::class, 'availability'])->name('stint-availability');
+Route::post('/stint-availability/{token}', [StintPlanController::class, 'saveAvailability'])->middleware('throttle:20,1')->name('stint-availability.save');
 Route::post('/partners', [EnquiryController::class, 'sponsor'])->middleware('throttle:5,10')->name('partners.submit');
 Route::get('/enquiry-received/{type}', fn (string $type) => in_array($type, ['driver', 'sponsor'], true)
     ? view('site', ['page' => 'thanks', 'enquiryType' => $type])
