@@ -10,6 +10,10 @@ class DriverApplication extends Model
 
     protected function casts(): array
     {
-        return ['simulators' => 'array'];
+        return [
+            'simulators' => 'array',
+            'accepted_at' => 'datetime',
+            'welcome_email_sent_at' => 'datetime',
+        ];
     }
 }

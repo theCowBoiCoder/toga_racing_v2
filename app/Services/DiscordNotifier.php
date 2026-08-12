@@ -20,6 +20,7 @@ class DiscordNotifier
                 ['name' => 'Driver', 'value' => $this->clean($application->name), 'inline' => true],
                 ['name' => 'Email', 'value' => $this->clean($application->email), 'inline' => true],
                 ['name' => 'Discord', 'value' => $this->clean($application->discord), 'inline' => true],
+                ['name' => 'Age', 'value' => (string) $application->age, 'inline' => true],
                 ['name' => 'Location', 'value' => $this->clean($application->country.' · '.$application->timezone), 'inline' => true],
                 ['name' => 'Simulators', 'value' => $this->clean(implode(', ', $application->simulators)), 'inline' => true],
                 ['name' => 'Preferred class', 'value' => $this->clean($application->car_class), 'inline' => true],
@@ -29,7 +30,15 @@ class DiscordNotifier
             ],
             'footer' => ['text' => 'Toga Racing · Application #'.$application->id],
             'timestamp' => $application->created_at->toIso8601String(),
-        ]);
+        ], [[
+            'type' => 1,
+            'components' => [[
+                'type' => 2,
+                'style' => 3,
+                'label' => 'Accept driver',
+                'custom_id' => 'driver_accept:'.$application->id,
+            ]],
+        ]]);
     }
 
     public function sponsor(SponsorEnquiry $enquiry): void
@@ -98,7 +107,7 @@ class DiscordNotifier
         ]);
     }
 
-    private function send(?string $channelId, array $embed): bool
+    private function send(?string $channelId, array $embed, array $components = []): bool
     {
         $token = config('services.discord.bot_token');
         if (! $token || ! $channelId) {
@@ -106,9 +115,14 @@ class DiscordNotifier
         }
 
         try {
+            $payload = ['embeds' => [$embed], 'allowed_mentions' => ['parse' => []]];
+            if ($components !== []) {
+                $payload['components'] = $components;
+            }
+
             Http::withToken($token, 'Bot')->timeout(8)->post(
                 'https://discord.com/api/v10/channels/'.$channelId.'/messages',
-                ['embeds' => [$embed], 'allowed_mentions' => ['parse' => []]]
+                $payload
             )->throw();
             return true;
         } catch (\Throwable $exception) {

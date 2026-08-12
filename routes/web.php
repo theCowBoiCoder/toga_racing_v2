@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Services\InstagramFeed;
 use App\Http\Controllers\EnquiryController;
+use App\Http\Controllers\DiscordInteractionController;
 use App\Http\Controllers\StintPlanController;
 
 $drivers = fn () => collect([
@@ -24,6 +25,7 @@ $articles = fn () => collect([
 Route::get('/', fn (InstagramFeed $instagram) => view('site', ['page' => 'home', 'drivers' => $drivers(), 'articles' => $articles(), 'instagramPosts' => $instagram->posts()]))->name('home');
 Route::get('/join', fn () => view('site', ['page' => 'join']))->name('join');
 Route::post('/join', [EnquiryController::class, 'driver'])->middleware('throttle:5,10')->name('join.submit');
+Route::post('/discord/interactions', DiscordInteractionController::class)->middleware('throttle:60,1')->name('discord.interactions');
 Route::get('/partners', fn () => view('site', ['page' => 'partners']))->name('partners');
 Route::view('/stint-planner', 'stint-planner')->name('stint-planner');
 Route::post('/stint-planner/publish', [StintPlanController::class, 'publish'])->middleware('throttle:20,1')->name('stint-planner.publish');

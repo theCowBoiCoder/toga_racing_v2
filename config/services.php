@@ -15,6 +15,7 @@ return [
 
     'discord' => [
         'bot_token' => env('DISCORD_BOT_TOKEN'),
+        'public_key' => env('DISCORD_PUBLIC_KEY'),
         'partner_channel' => env('DISCORD_PARTNER_CHANNEL_ID', '1527599240405323887'),
         'driver_channel' => env('DISCORD_DRIVER_CHANNEL_ID', '1527599269392023633'),
         'stint_channel' => env('DISCORD_STINT_CHANNEL_ID'),
