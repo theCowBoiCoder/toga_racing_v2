@@ -22,7 +22,7 @@ class EnquiryController extends Controller
             'email' => ['required', 'email', 'max:180'],
             'country' => ['required', 'string', 'max:100'],
             'timezone' => ['required', 'string', 'max:100'],
-            'age' => ['nullable', 'integer', 'between:16,99'],
+            'age' => ['required', 'integer', 'between:16,99'],
             'discord' => ['required', 'string', 'max:100'],
             'simulators' => ['required', 'array', 'min:1'],
             'simulators.*' => ['in:iRacing,Le Mans Ultimate'],
