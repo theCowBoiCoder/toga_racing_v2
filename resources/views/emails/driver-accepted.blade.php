@@ -7,7 +7,14 @@
 </head>
 <body style="margin:0;background:#f4f4f5;color:#18181b;font-family:Arial,sans-serif;line-height:1.6">
 <div style="max-width:640px;margin:0 auto;padding:32px 20px">
-    <div style="background:#ffffff;border-top:5px solid #1a0b4c;padding:32px">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;background:#ffffff">
+        <tr>
+            <td align="center" bgcolor="#1A0B4C" style="background:#1A0B4C;padding:28px 32px">
+                <img src="https://togaracing.co.uk/images/logo.png" width="112" alt="TOGA Racing" style="display:block;width:112px;max-width:100%;height:auto;border:0">
+            </td>
+        </tr>
+        <tr>
+            <td style="background:#ffffff;padding:32px">
         <p>Hi {{ $application->name }},</p>
 
         <p>Thanks for applying to join TOGA Racing!</p>
@@ -27,7 +34,9 @@
         <p>Hayden<br>
         TOGA Racing<br>
         <a href="https://togaracing.co.uk" style="color:#1a0b4c">https://togaracing.co.uk</a></p>
-    </div>
+            </td>
+        </tr>
+    </table>
 </div>
 </body>
 </html>
