@@ -6,6 +6,7 @@ use App\Jobs\AcceptDriverApplication;
 use App\Models\DriverApplication;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class DiscordInteractionController extends Controller
@@ -60,14 +61,23 @@ class DiscordInteractionController extends Controller
             return $this->ephemeral('Discord did not provide enough information to process this application.');
         }
 
-        AcceptDriverApplication::dispatch(
-            (int) $matches[1],
-            $adminId,
-            $adminName,
-            $customId,
-            $discordApplicationId,
-            $interactionToken,
-        )->onConnection('database')->onQueue('emails');
+        try {
+            AcceptDriverApplication::dispatch(
+                (int) $matches[1],
+                $adminId,
+                $adminName,
+                $customId,
+                $discordApplicationId,
+                $interactionToken,
+            )->onConnection('database')->onQueue('emails');
+        } catch (Throwable $exception) {
+            Log::error('Driver acceptance could not be queued.', [
+                'application_id' => $matches[1],
+                'error' => $exception->getMessage(),
+            ]);
+
+            return $this->ephemeral('The acceptance email could not be queued. Please check that the queue database has been migrated.');
+        }
 
         return response()->json(['type' => 6]);
     }

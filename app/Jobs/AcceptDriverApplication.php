@@ -5,7 +5,6 @@ namespace App\Jobs;
 use App\Mail\DriverAccepted;
 use App\Models\DriverApplication;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\InteractsWithQueue;
@@ -16,15 +15,13 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
 
-class AcceptDriverApplication implements ShouldBeUnique, ShouldQueue
+class AcceptDriverApplication implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
 
     public int $timeout = 30;
-
-    public int $uniqueFor = 300;
 
     public function __construct(
         public int $applicationId,
@@ -34,11 +31,6 @@ class AcceptDriverApplication implements ShouldBeUnique, ShouldQueue
         public string $discordApplicationId,
         public string $interactionToken,
     ) {}
-
-    public function uniqueId(): string
-    {
-        return (string) $this->applicationId;
-    }
 
     public function backoff(): array
     {
