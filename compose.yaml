@@ -23,3 +23,15 @@ services:
       DISCORD_STINT_CHANNEL_ID: ${DISCORD_STINT_CHANNEL_ID:-}
       STINT_PLANNER_SHARE_KEY: ${STINT_PLANNER_SHARE_KEY:-}
     restart: unless-stopped
+
+  queue:
+    build: .
+    container_name: toga-racing-v2-queue
+    command: php artisan queue:work database --queue=emails --sleep=1 --tries=3 --timeout=30
+    volumes:
+      - .:/var/www/html
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      LOG_CHANNEL: stderr
+    restart: unless-stopped

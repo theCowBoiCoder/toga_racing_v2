@@ -3,11 +3,13 @@
 namespace Tests\Feature;
 
 use App\Mail\DriverAccepted;
+use App\Jobs\AcceptDriverApplication;
 use App\Models\DriverApplication;
 use App\Models\SponsorEnquiry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class EnquiryTest extends TestCase
@@ -18,6 +20,7 @@ class EnquiryTest extends TestCase
     {
         Mail::fake();
         Http::fake(['discord.com/*' => Http::response(['id' => 'message-1'])]);
+        Queue::fake();
         config()->set('services.discord.bot_token', 'test-token');
 
         $response = $this->post('/join', [
@@ -75,9 +78,18 @@ class EnquiryTest extends TestCase
         ];
 
         $firstResponse = $this->signedDiscordRequest($payload);
-        $secondResponse = $this->signedDiscordRequest($payload);
 
         $firstResponse->assertOk()->assertJsonPath('type', 6);
+
+        $queuedJob = null;
+        Queue::assertPushed(AcceptDriverApplication::class, function (AcceptDriverApplication $job) use (&$queuedJob) {
+            $queuedJob = $job;
+
+            return true;
+        });
+        $queuedJob->handle();
+
+        $secondResponse = $this->signedDiscordRequest($payload);
         $secondResponse->assertOk()->assertJsonPath('type', 7);
 
         Mail::assertSent(DriverAccepted::class, 1);

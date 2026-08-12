@@ -2,14 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\DriverAccepted;
+use App\Jobs\AcceptDriverApplication;
 use App\Models\DriverApplication;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 class DiscordInteractionController extends Controller
@@ -64,14 +60,14 @@ class DiscordInteractionController extends Controller
             return $this->ephemeral('Discord did not provide enough information to process this application.');
         }
 
-        defer(fn () => $this->acceptAndNotify(
+        AcceptDriverApplication::dispatch(
             (int) $matches[1],
             $adminId,
             $adminName,
             $customId,
             $discordApplicationId,
             $interactionToken,
-        ));
+        )->onConnection('database')->onQueue('emails');
 
         return response()->json(['type' => 6]);
     }
@@ -111,78 +107,6 @@ class DiscordInteractionController extends Controller
                 'flags' => 64,
             ],
         ]);
-    }
-
-    private function acceptAndNotify(
-        int $applicationId,
-        string $adminId,
-        string $adminName,
-        string $customId,
-        string $discordApplicationId,
-        string $interactionToken,
-    ): void {
-        try {
-            DB::transaction(function () use ($applicationId, $adminId, $adminName) {
-                $application = DriverApplication::query()->lockForUpdate()->findOrFail($applicationId);
-
-                if ($application->welcome_email_sent_at) {
-                    return;
-                }
-
-                Mail::to($application->email)->send(new DriverAccepted($application));
-
-                $application->update([
-                    'status' => 'accepted',
-                    'accepted_at' => now(),
-                    'welcome_email_sent_at' => now(),
-                    'accepted_by_discord_id' => $adminId,
-                    'accepted_by_discord_name' => $adminName,
-                ]);
-            });
-
-            $this->editDiscordButton(
-                $discordApplicationId,
-                $interactionToken,
-                $customId,
-                'Accepted and emailed',
-                true,
-                3,
-            );
-        } catch (Throwable $exception) {
-            Log::error('Driver acceptance email failed.', [
-                'application_id' => $applicationId,
-                'error' => $exception->getMessage(),
-            ]);
-
-            $this->editDiscordButton(
-                $discordApplicationId,
-                $interactionToken,
-                $customId,
-                'Email failed — retry',
-                false,
-                4,
-            );
-        }
-    }
-
-    private function editDiscordButton(
-        string $discordApplicationId,
-        string $interactionToken,
-        string $customId,
-        string $label,
-        bool $disabled,
-        int $style,
-    ): void {
-        try {
-            Http::timeout(5)->patch(
-                'https://discord.com/api/v10/webhooks/'.$discordApplicationId.'/'.$interactionToken.'/messages/@original',
-                $this->buttonComponents($customId, $label, $disabled, $style),
-            )->throw();
-        } catch (Throwable $exception) {
-            Log::warning('Discord acceptance button could not be updated.', [
-                'error' => $exception->getMessage(),
-            ]);
-        }
     }
 
     private function updateButton(string $customId, string $label, bool $disabled): JsonResponse
