@@ -25,7 +25,7 @@ class EnquiryController extends Controller
             'age' => ['required', 'integer', 'between:16,99'],
             'discord' => ['required', 'string', 'max:100'],
             'simulators' => ['required', 'array', 'min:1'],
-            'simulators.*' => ['in:iRacing,Le Mans Ultimate'],
+            'simulators.*' => ['in:iRacing,Le Mans Ultimate,Assetto Corsa Competizione'],
             'car_class' => ['required', 'string', 'max:100'],
             'experience' => ['required', 'string', 'min:30', 'max:3000'],
             'availability' => ['required', 'string', 'min:10', 'max:1000'],

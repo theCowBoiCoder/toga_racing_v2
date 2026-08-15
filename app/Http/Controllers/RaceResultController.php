@@ -36,7 +36,7 @@ class RaceResultController extends Controller
             'started_at' => ['required', 'integer', 'lte:'.(now()->timestamp - 2)],
             'event_name' => ['required', 'string', 'max:180'],
             'event_date' => ['required', 'date', 'before_or_equal:today'],
-            'simulator' => ['required', 'in:iRacing,Le Mans Ultimate'],
+            'simulator' => ['required', 'in:iRacing,Le Mans Ultimate,Assetto Corsa Competizione'],
             'split_number' => ['required', 'integer', 'between:1,999'],
             'starting_position' => ['required', 'integer', 'between:1,999'],
             'finishing_position' => ['required', 'integer', 'between:1,999'],
@@ -84,5 +84,21 @@ class RaceResultController extends Controller
             $raceResult->image_original_name,
             ['Cache-Control' => 'public, max-age=86400'],
         );
+    }
+
+    public function destroy(Request $request, RaceResult $raceResult): RedirectResponse
+    {
+        abort_unless(
+            hash_equals(
+                (string) config('services.discord.results_admin_user_id'),
+                (string) $request->session()->get('discord_user.id', ''),
+            ),
+            403,
+        );
+
+        Storage::disk('local')->delete($raceResult->image_path);
+        $raceResult->delete();
+
+        return redirect()->route('results')->with('result_deleted', 'Race result deleted.');
     }
 }

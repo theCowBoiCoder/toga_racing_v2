@@ -32,7 +32,7 @@ class EnquiryTest extends TestCase
             'timezone' => 'Europe/London',
             'age' => 25,
             'discord' => 'testdriver',
-            'simulators' => ['iRacing', 'Le Mans Ultimate'],
+            'simulators' => ['iRacing', 'Le Mans Ultimate', 'Assetto Corsa Competizione'],
             'car_class' => 'GT3',
             'experience' => 'Several seasons of league and endurance racing.',
             'availability' => 'Weekday evenings and most weekends.',
@@ -42,6 +42,7 @@ class EnquiryTest extends TestCase
 
         $response->assertRedirect(route('enquiry.thanks', 'driver'));
         $this->assertDatabaseHas(DriverApplication::class, ['email' => 'driver@example.com']);
+        $this->assertContains('Assetto Corsa Competizione', DriverApplication::firstOrFail()->simulators);
         Http::assertSent(fn ($request) => str_contains($request->url(), '/channels/1527599269392023633/messages')
             && $request['embeds'][0]['title'] === 'New driver application'
             && $request['components'][0]['components'][0]['custom_id'] === 'driver_accept:1');

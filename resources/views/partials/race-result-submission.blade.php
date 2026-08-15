@@ -26,7 +26,7 @@
                 <div class="field-grid">
                     <label>Event name<input name="event_name" value="{{ old('event_name') }}" placeholder="e.g. 24 Hours of Spa" required></label>
                     <label>Event date<input type="date" name="event_date" value="{{ old('event_date') }}" max="{{ now()->toDateString() }}" required></label>
-                    <label>Simulator<select name="simulator" required><option value="">Choose a simulator</option>@foreach(['iRacing','Le Mans Ultimate'] as $simulator)<option value="{{ $simulator }}" @selected(old('simulator') === $simulator)>{{ $simulator }}</option>@endforeach</select></label>
+                    <label>Simulator<select name="simulator" required><option value="">Choose a simulator</option>@foreach(['iRacing','Le Mans Ultimate','Assetto Corsa Competizione'] as $simulator)<option value="{{ $simulator }}" @selected(old('simulator') === $simulator)>{{ $simulator }}</option>@endforeach</select></label>
                     <label>Split number<input type="number" min="1" max="999" name="split_number" value="{{ old('split_number') }}" required></label>
                     <label>Car class<input name="car_class" value="{{ old('car_class') }}" placeholder="e.g. GT3, Hypercar, LMP2" required></label>
                     <label>Starting position<input type="number" min="1" max="999" name="starting_position" value="{{ old('starting_position') }}" required></label>

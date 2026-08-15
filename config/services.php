@@ -19,6 +19,7 @@ return [
         'client_id' => env('DISCORD_CLIENT_ID'),
         'client_secret' => env('DISCORD_CLIENT_SECRET'),
         'redirect_uri' => env('DISCORD_REDIRECT_URI'),
+        'results_admin_user_id' => env('DISCORD_RESULTS_ADMIN_USER_ID', '321560062231314443'),
         'partner_channel' => env('DISCORD_PARTNER_CHANNEL_ID', '1527599240405323887'),
         'driver_channel' => env('DISCORD_DRIVER_CHANNEL_ID', '1527599269392023633'),
         'race_results_channel' => env('DISCORD_RACE_RESULTS_CHANNEL_ID', '1538240961375633559'),

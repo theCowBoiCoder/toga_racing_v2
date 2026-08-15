@@ -3,6 +3,7 @@
 use App\Http\Controllers\DiscordAuthController;
 use App\Http\Controllers\DiscordInteractionController;
 use App\Http\Controllers\EnquiryController;
+use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\RaceResultController;
 use App\Http\Controllers\StintPlanController;
 use App\Services\InstagramFeed;
@@ -33,6 +34,7 @@ Route::get('/auth/discord/callback', [DiscordAuthController::class, 'callback'])
 Route::post('/auth/discord/logout', [DiscordAuthController::class, 'logout'])->name('discord.logout');
 Route::get('/results', [RaceResultController::class, 'index'])->name('results');
 Route::post('/results', [RaceResultController::class, 'store'])->middleware('throttle:5,10')->name('results.submit');
+Route::delete('/results/{raceResult}', [RaceResultController::class, 'destroy'])->middleware('throttle:20,1')->name('results.destroy');
 Route::get('/results/{raceResult}/image', [RaceResultController::class, 'image'])->name('results.image');
 Route::get('/partners', fn () => view('site', ['page' => 'partners']))->name('partners');
 Route::view('/stint-planner', 'stint-planner')->name('stint-planner');
@@ -54,7 +56,11 @@ Route::post('/partners', [EnquiryController::class, 'sponsor'])->middleware('thr
 Route::get('/enquiry-received/{type}', fn (string $type) => in_array($type, ['driver', 'sponsor', 'race-result'], true)
     ? view('site', ['page' => 'thanks', 'enquiryType' => $type])
     : abort(404))->name('enquiry.thanks');
-Route::get('/gallery', fn () => view('site', ['page' => 'gallery', 'drivers' => $drivers(), 'articles' => $articles()]))->name('gallery');
+Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery');
+Route::delete('/gallery/{image}', [GalleryController::class, 'destroy'])
+    ->where('image', '[A-Za-z0-9._-]+')
+    ->middleware('throttle:20,1')
+    ->name('gallery.destroy');
 Route::get('/news', fn () => view('site', ['page' => 'news', 'drivers' => $drivers(), 'articles' => $articles()]))->name('news');
 Route::get('/news/{slug}', function ($slug) use ($drivers, $articles) {
     return view('site', ['page' => 'article', 'article' => $articles()->firstWhere('slug', $slug) ?? abort(404), 'drivers' => $drivers(), 'articles' => $articles()]);

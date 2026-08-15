@@ -24,6 +24,7 @@ class RaceResultTest extends TestCase
         $response->assertRedirect(route('enquiry.thanks', 'race-result'));
         $result = RaceResult::firstOrFail();
         $this->assertSame('pending', $result->status);
+        $this->assertSame('Assetto Corsa Competizione', $result->simulator);
         $this->assertSame('987654321', $result->submitter_discord_id);
         $this->assertSame('testdriver', $result->submitter_discord_username);
         Storage::disk('local')->assertExists($result->image_path);
@@ -116,6 +117,33 @@ class RaceResultTest extends TestCase
             ->assertDontSee('Send for approval');
     }
 
+    public function test_only_the_configured_discord_admin_can_delete_a_result_and_its_image(): void
+    {
+        Storage::fake('local');
+        $path = $this->pngUpload()->store('race-results', 'local');
+        $result = $this->createApprovedResult($path);
+
+        $this->withSession($this->discordSession())
+            ->delete(route('results.destroy', $result))
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('race_results', ['id' => $result->id]);
+        Storage::disk('local')->assertExists($path);
+
+        $this->withSession($this->adminDiscordSession())
+            ->get('/results')
+            ->assertOk()
+            ->assertSee('Delete result');
+
+        $this->withSession($this->adminDiscordSession())
+            ->delete(route('results.destroy', $result))
+            ->assertRedirect(route('results'))
+            ->assertSessionHas('result_deleted');
+
+        $this->assertDatabaseMissing('race_results', ['id' => $result->id]);
+        Storage::disk('local')->assertMissing($path);
+    }
+
     private function validResultData(): array
     {
         return [
@@ -123,7 +151,7 @@ class RaceResultTest extends TestCase
             'started_at' => now()->subSeconds(5)->timestamp,
             'event_name' => '24 Hours of Spa',
             'event_date' => '2026-08-10',
-            'simulator' => 'iRacing',
+            'simulator' => 'Assetto Corsa Competizione',
             'split_number' => 2,
             'starting_position' => 12,
             'finishing_position' => 4,
@@ -149,6 +177,35 @@ class RaceResultTest extends TestCase
                 'display_name' => 'Test Driver',
             ],
         ];
+    }
+
+    private function adminDiscordSession(): array
+    {
+        return [
+            'discord_user' => [
+                'id' => '321560062231314443',
+                'username' => 'togaadmin',
+                'display_name' => 'Toga Admin',
+            ],
+        ];
+    }
+
+    private function createApprovedResult(string $path): RaceResult
+    {
+        return RaceResult::create([
+            'event_name' => '24 Hours of Spa',
+            'event_date' => '2026-08-10',
+            'simulator' => 'iRacing',
+            'split_number' => 2,
+            'starting_position' => 12,
+            'finishing_position' => 4,
+            'car_class' => 'GT3',
+            'team_members' => 'Hayden Sweet',
+            'image_path' => $path,
+            'image_original_name' => 'spa.png',
+            'status' => 'approved',
+            'approved_at' => now(),
+        ]);
     }
 
     private function signedDiscordRequest(array $payload)

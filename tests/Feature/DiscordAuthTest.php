@@ -51,6 +51,29 @@ class DiscordAuthTest extends TestCase
         Http::assertSentCount(2);
     }
 
+    public function test_discord_login_can_return_an_admin_to_the_gallery(): void
+    {
+        config()->set('services.discord.client_id', 'client-123');
+        config()->set('services.discord.client_secret', 'secret-456');
+        Http::fake([
+            'discord.com/api/v10/oauth2/token' => Http::response(['access_token' => 'user-token']),
+            'discord.com/api/v10/users/@me' => Http::response([
+                'id' => '987654321',
+                'username' => 'testdriver',
+                'global_name' => 'Test Driver',
+            ]),
+        ]);
+
+        $login = $this->get('/auth/discord?return=gallery');
+        $login->assertRedirectContains('https://discord.com/oauth2/authorize?');
+
+        $state = session('discord_oauth_state');
+
+        $this->get('/auth/discord/callback?code=auth-code&state='.$state)
+            ->assertRedirect(route('gallery'))
+            ->assertSessionHas('discord_user.id', '987654321');
+    }
+
     public function test_discord_callback_rejects_an_invalid_state(): void
     {
         Http::fake();

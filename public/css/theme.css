@@ -832,6 +832,93 @@ footer { border-top: 3px solid #EDEDED; }
     line-height: 1.8;
 }
 
+.result-delete-form {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+}
+
+.result-delete-form button {
+    padding: 9px 0;
+    border: 0;
+    background: transparent;
+    color: #ff9999;
+    cursor: pointer;
+    font: 800 9px Montserrat, sans-serif;
+    letter-spacing: .11em;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-transform: uppercase;
+}
+
+.result-delete-form button:hover,
+.result-delete-form button:focus-visible {
+    color: #fff;
+}
+
+.gallery-hero .gallery-admin-login {
+    margin-top: 20px;
+}
+
+.gallery-admin-status {
+    margin: 20px 0 0;
+    color: #c8f5d8 !important;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.gallery-logout {
+    margin-top: 8px;
+}
+
+.gallery-alert {
+    margin: 24px max(5vw, 28px) 0;
+}
+
+.gallery figure {
+    position: relative;
+}
+
+.gallery-delete-form {
+    position: absolute;
+    z-index: 2;
+    right: 12px;
+    bottom: 12px;
+    margin: 0;
+}
+
+.gallery-delete-form button {
+    padding: 10px 13px;
+    border: 1px solid rgba(255, 153, 153, .65);
+    background: rgba(16, 14, 14, .9);
+    color: #ffb0b0;
+    cursor: pointer;
+    font: 800 9px Montserrat, sans-serif;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.gallery-delete-form button:hover,
+.gallery-delete-form button:focus-visible {
+    border-color: #fff;
+    color: #fff;
+}
+
+.gallery-empty {
+    grid-column: 1 / -1;
+    color: var(--muted);
+}
+
+.result-alert {
+    margin-bottom: 22px;
+    padding: 14px 18px;
+    border: 1px solid rgba(98, 216, 143, .5);
+    background: rgba(98, 216, 143, .1);
+    color: #c8f5d8;
+    font-size: 11px;
+    font-weight: 700;
+}
+
 .results-empty {
     grid-column: 1 / -1;
     padding: 55px;

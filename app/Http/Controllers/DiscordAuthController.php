@@ -13,13 +13,16 @@ class DiscordAuthController extends Controller
 {
     public function redirect(Request $request): RedirectResponse
     {
+        $returnRoute = $this->returnRouteName((string) $request->query('return', 'results'));
+
         if (! config('services.discord.client_id') || ! config('services.discord.client_secret')) {
-            return redirect(route('results').'#submit-result')
+            return redirect($this->returnUrl($returnRoute))
                 ->withErrors(['discord_auth' => 'Discord sign-in has not been configured yet.']);
         }
 
         $state = Str::random(64);
         $request->session()->put('discord_oauth_state', $state);
+        $request->session()->put('discord_return_route', $returnRoute);
 
         return redirect()->away('https://discord.com/oauth2/authorize?'.http_build_query([
             'client_id' => config('services.discord.client_id'),
@@ -32,16 +35,17 @@ class DiscordAuthController extends Controller
 
     public function callback(Request $request): RedirectResponse
     {
+        $returnRoute = $this->returnRouteName((string) $request->session()->pull('discord_return_route', 'results'));
         $expectedState = (string) $request->session()->pull('discord_oauth_state', '');
         $receivedState = (string) $request->query('state', '');
 
         if ($request->query('error') || $expectedState === '' || ! hash_equals($expectedState, $receivedState)) {
-            return $this->failed('Discord sign-in was cancelled or could not be verified. Please try again.');
+            return $this->failed('Discord sign-in was cancelled or could not be verified. Please try again.', $returnRoute);
         }
 
         $code = (string) $request->query('code', '');
         if ($code === '') {
-            return $this->failed('Discord did not return an authorization code. Please try again.');
+            return $this->failed('Discord did not return an authorization code. Please try again.', $returnRoute);
         }
 
         try {
@@ -70,12 +74,12 @@ class DiscordAuthController extends Controller
                 'display_name' => (string) (($discordUser['global_name'] ?? null) ?: $discordUser['username']),
             ]);
 
-            return redirect(route('results').'#submit-result')
-                ->with('discord_auth_success', 'Signed in with Discord. You can now submit your result.');
+            return redirect($this->returnUrl($returnRoute))
+                ->with('discord_auth_success', 'Signed in with Discord.');
         } catch (Throwable $exception) {
             Log::warning('Discord OAuth sign-in failed.', ['error' => $exception->getMessage()]);
 
-            return $this->failed('Discord sign-in failed. Please try again.');
+            return $this->failed('Discord sign-in failed. Please try again.', $returnRoute);
         }
     }
 
@@ -84,7 +88,7 @@ class DiscordAuthController extends Controller
         $request->session()->forget('discord_user');
         $request->session()->regenerateToken();
 
-        return redirect(route('results').'#submit-result');
+        return redirect($this->returnUrl($this->returnRouteName((string) $request->query('return', 'results'))));
     }
 
     private function redirectUri(): string
@@ -92,8 +96,18 @@ class DiscordAuthController extends Controller
         return config('services.discord.redirect_uri') ?: route('discord.callback');
     }
 
-    private function failed(string $message): RedirectResponse
+    private function failed(string $message, string $returnRoute): RedirectResponse
     {
-        return redirect(route('results').'#submit-result')->withErrors(['discord_auth' => $message]);
+        return redirect($this->returnUrl($returnRoute))->withErrors(['discord_auth' => $message]);
+    }
+
+    private function returnRouteName(string $route): string
+    {
+        return in_array($route, ['gallery', 'results'], true) ? $route : 'results';
+    }
+
+    private function returnUrl(string $route): string
+    {
+        return $route === 'gallery' ? route('gallery') : route('results').'#submit-result';
     }
 }
