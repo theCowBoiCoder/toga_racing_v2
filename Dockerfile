@@ -6,6 +6,7 @@ RUN composer install --no-dev --no-interaction --prefer-dist --no-scripts --opti
 FROM php:8.4-cli-alpine
 
 RUN docker-php-ext-install pdo pdo_mysql
+COPY docker/php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 WORKDIR /var/www/html
 COPY . .
 COPY --from=vendor /app/vendor ./vendor

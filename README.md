@@ -56,3 +56,15 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Discord sign-in for race results
+
+Race-result submissions use Discord OAuth2 with the `identify` scope. Configure these values in the deployment environment:
+
+```env
+DISCORD_CLIENT_ID=your_discord_application_id
+DISCORD_CLIENT_SECRET=your_discord_application_secret
+DISCORD_REDIRECT_URI=https://your-domain.example/auth/discord/callback
+```
+
+Add the exact `DISCORD_REDIRECT_URI` value to the OAuth2 redirect URLs for the same Discord application in the Discord Developer Portal. The existing bot token and public key configuration remain responsible for result notifications and signed approval-button interactions.

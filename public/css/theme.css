@@ -735,6 +735,216 @@ body { background: var(--black); }
 
 footer { border-top: 3px solid #EDEDED; }
 
+.results-hero .button {
+    margin-top: 22px;
+}
+
+.results-section {
+    max-width: 1380px;
+}
+
+.result-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.result-card {
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #1A0B4C;
+    box-shadow: 0 24px 65px rgba(0, 0, 0, .2);
+}
+
+.result-card > img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+.result-copy {
+    padding: clamp(24px, 3vw, 38px);
+}
+
+.result-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.result-meta span {
+    padding: 7px 9px;
+    border: 1px solid rgba(237, 237, 237, .22);
+    color: var(--muted);
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.result-copy h3 {
+    margin: 20px 0 26px;
+    font-size: clamp(25px, 3vw, 42px);
+    line-height: 1;
+    letter-spacing: -.04em;
+    text-transform: uppercase;
+}
+
+.result-positions {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 20px 0;
+    border-block: 1px solid var(--line);
+}
+
+.result-positions div {
+    display: grid;
+    gap: 5px;
+}
+
+.result-positions small,
+.result-team small {
+    color: var(--muted);
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .14em;
+}
+
+.result-positions b {
+    font-size: 32px;
+}
+
+.result-positions > span {
+    color: var(--muted);
+}
+
+.result-team {
+    padding-top: 20px;
+}
+
+.result-team p {
+    margin-bottom: 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.results-empty {
+    grid-column: 1 / -1;
+    padding: 55px;
+    border: 1px solid var(--line);
+    background: #1A0B4C;
+    text-align: center;
+}
+
+.results-empty b {
+    font-size: 22px;
+}
+
+.results-empty p {
+    color: var(--muted);
+}
+
+.result-form-shell {
+    max-width: none;
+    scroll-margin-top: 82px;
+    background: #1A0B4C;
+}
+
+.result-form-shell > * {
+    width: 100%;
+    max-width: 650px;
+}
+
+.result-form-shell .form-intro {
+    justify-self: end;
+}
+
+.enquiry-form input[type="file"] {
+    cursor: pointer;
+}
+
+.result-submit-panel {
+    display: grid;
+    gap: 22px;
+}
+
+.discord-auth-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border: 1px solid rgba(88, 101, 242, .75);
+    background: rgba(88, 101, 242, .16);
+}
+
+.discord-auth-bar div {
+    display: grid;
+    gap: 5px;
+}
+
+.discord-auth-bar small,
+.discord-auth-bar span {
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: .08em;
+}
+
+.discord-auth-bar b {
+    font-size: 16px;
+}
+
+.discord-login-card {
+    align-self: start;
+    padding: clamp(28px, 4vw, 48px);
+    border: 1px solid rgba(88, 101, 242, .7);
+    background: radial-gradient(circle at top right, rgba(88, 101, 242, .28), transparent 48%), #100e0e;
+}
+
+.discord-login-card h3 {
+    margin: 15px 0;
+    font-size: clamp(28px, 3.2vw, 44px);
+    line-height: 1;
+}
+
+.discord-login-card p {
+    margin-bottom: 28px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.discord-mark {
+    color: #aeb4ff;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .16em;
+}
+
+.discord-button {
+    border-color: #5865f2;
+    background: #5865f2;
+    color: #fff;
+}
+
+.discord-logout {
+    justify-self: start;
+}
+
+.discord-logout button {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font: 700 9px Montserrat, sans-serif;
+    letter-spacing: .1em;
+    text-decoration: underline;
+    text-transform: uppercase;
+}
+
 @media (max-width: 650px) {
     .hero {
         min-height: 760px;
@@ -745,4 +955,6 @@ footer { border-top: 3px solid #EDEDED; }
         font-size: clamp(48px, 16vw, 72px);
     }
     .statement { min-height: 540px; }
+    .result-grid { grid-template-columns: 1fr; }
+    .result-copy { padding: 24px; }
 }

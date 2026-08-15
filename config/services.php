@@ -16,8 +16,12 @@ return [
     'discord' => [
         'bot_token' => env('DISCORD_BOT_TOKEN'),
         'public_key' => env('DISCORD_PUBLIC_KEY'),
+        'client_id' => env('DISCORD_CLIENT_ID'),
+        'client_secret' => env('DISCORD_CLIENT_SECRET'),
+        'redirect_uri' => env('DISCORD_REDIRECT_URI'),
         'partner_channel' => env('DISCORD_PARTNER_CHANNEL_ID', '1527599240405323887'),
         'driver_channel' => env('DISCORD_DRIVER_CHANNEL_ID', '1527599269392023633'),
+        'race_results_channel' => env('DISCORD_RACE_RESULTS_CHANNEL_ID', '1538240961375633559'),
         'stint_channel' => env('DISCORD_STINT_CHANNEL_ID'),
     ],
 

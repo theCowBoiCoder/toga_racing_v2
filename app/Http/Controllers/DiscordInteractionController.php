@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\AcceptDriverApplication;
 use App\Models\DriverApplication;
+use App\Models\RaceResult;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -32,19 +33,24 @@ class DiscordInteractionController extends Controller
 
         $permissions = (int) data_get($payload, 'member.permissions', 0);
         if (($permissions & self::ADMINISTRATOR) === 0 && ($permissions & self::MANAGE_GUILD) === 0) {
-            return $this->ephemeral('Only a TOGA Racing admin can accept driver applications.');
+            return $this->ephemeral('Only a TOGA Racing admin can use this action.');
         }
 
         $customId = (string) data_get($payload, 'data.custom_id');
-        if (! preg_match('/^driver_accept:(\d+)$/', $customId, $matches)) {
-            return $this->ephemeral('Unknown application action.');
-        }
-
         $adminId = (string) data_get($payload, 'member.user.id');
         $adminName = (string) (data_get($payload, 'member.nick')
             ?: data_get($payload, 'member.user.global_name')
             ?: data_get($payload, 'member.user.username')
             ?: 'Discord admin');
+
+        if (preg_match('/^result_approve:(\d+)$/', $customId, $matches)) {
+            return $this->approveRaceResult((int) $matches[1], $customId, $adminId, $adminName);
+        }
+
+        if (! preg_match('/^driver_accept:(\d+)$/', $customId, $matches)) {
+            return $this->ephemeral('Unknown application action.');
+        }
+
         $discordApplicationId = (string) ($payload['application_id'] ?? '');
         $interactionToken = (string) ($payload['token'] ?? '');
 
@@ -80,6 +86,27 @@ class DiscordInteractionController extends Controller
         }
 
         return response()->json(['type' => 6]);
+    }
+
+    private function approveRaceResult(int $id, string $customId, string $adminId, string $adminName): JsonResponse
+    {
+        $result = RaceResult::find($id);
+        if (! $result) {
+            return $this->ephemeral('That race result could not be found.');
+        }
+
+        if ($result->status === 'approved') {
+            return $this->updateButton($customId, 'Approved and published', true);
+        }
+
+        $result->update([
+            'status' => 'approved',
+            'approved_at' => now(),
+            'approved_by_discord_id' => $adminId,
+            'approved_by_discord_name' => $adminName,
+        ]);
+
+        return $this->updateButton($customId, 'Approved and published', true);
     }
 
     private function hasValidSignature(Request $request): bool

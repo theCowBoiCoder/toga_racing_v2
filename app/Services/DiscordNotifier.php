@@ -3,10 +3,12 @@
 namespace App\Services;
 
 use App\Models\DriverApplication;
+use App\Models\RaceResult;
 use App\Models\SponsorEnquiry;
 use App\Models\StintPlan;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class DiscordNotifier
 {
@@ -59,6 +61,47 @@ class DiscordNotifier
             'footer' => ['text' => 'Toga Racing · Partnership #'.$enquiry->id],
             'timestamp' => $enquiry->created_at->toIso8601String(),
         ]);
+    }
+
+    public function raceResult(RaceResult $result): bool
+    {
+        $filename = 'race-result-'.$result->id.'.'.pathinfo($result->image_path, PATHINFO_EXTENSION);
+        $embed = [
+            'title' => 'Race result awaiting approval',
+            'description' => '**'.$this->clean($result->event_name, 180).'**',
+            'color' => 1706828,
+            'fields' => [
+                ['name' => 'Simulator', 'value' => $this->clean($result->simulator), 'inline' => true],
+                ['name' => 'Split', 'value' => '#'.$result->split_number, 'inline' => true],
+                ['name' => 'Car class', 'value' => $this->clean($result->car_class), 'inline' => true],
+                ['name' => 'Event date', 'value' => $result->event_date?->format('j F Y') ?? 'Not supplied', 'inline' => true],
+                ['name' => 'Started', 'value' => 'P'.$result->starting_position, 'inline' => true],
+                ['name' => 'Finished', 'value' => 'P'.$result->finishing_position, 'inline' => true],
+                ['name' => 'Positions gained', 'value' => sprintf('%+d', $result->starting_position - $result->finishing_position), 'inline' => true],
+                ['name' => 'Team members', 'value' => $this->clean($result->team_members, 1024)],
+                ['name' => 'Submitted by', 'value' => $this->clean(($result->submitter_discord_display_name ?: $result->submitter_discord_username).' (@'.$result->submitter_discord_username.') · ID '.$result->submitter_discord_id, 300)],
+            ],
+            'image' => ['url' => 'attachment://'.$filename],
+            'footer' => ['text' => 'Toga Racing · Result #'.$result->id],
+            'timestamp' => $result->created_at->toIso8601String(),
+        ];
+        $components = [[
+            'type' => 1,
+            'components' => [[
+                'type' => 2,
+                'style' => 3,
+                'label' => 'Approve and publish',
+                'custom_id' => 'result_approve:'.$result->id,
+            ]],
+        ]];
+
+        return $this->sendWithFile(
+            config('services.discord.race_results_channel'),
+            $embed,
+            $components,
+            Storage::disk('local')->path($result->image_path),
+            $filename,
+        );
     }
 
     public function stintPlan(StintPlan $stintPlan): bool
@@ -124,9 +167,44 @@ class DiscordNotifier
                 'https://discord.com/api/v10/channels/'.$channelId.'/messages',
                 $payload
             )->throw();
+
             return true;
         } catch (\Throwable $exception) {
             Log::warning('Discord form notification failed.', ['channel_id' => $channelId, 'error' => $exception->getMessage()]);
+
+            return false;
+        }
+    }
+
+    private function sendWithFile(?string $channelId, array $embed, array $components, string $path, string $filename): bool
+    {
+        $token = config('services.discord.bot_token');
+        if (! $token || ! $channelId || ! is_file($path)) {
+            return false;
+        }
+
+        try {
+            $payload = [
+                'embeds' => [$embed],
+                'components' => $components,
+                'allowed_mentions' => ['parse' => []],
+            ];
+
+            Http::withToken($token, 'Bot')
+                ->timeout(12)
+                ->attach('files[0]', file_get_contents($path), $filename)
+                ->post('https://discord.com/api/v10/channels/'.$channelId.'/messages', [
+                    'payload_json' => json_encode($payload, JSON_THROW_ON_ERROR),
+                ])
+                ->throw();
+
+            return true;
+        } catch (\Throwable $exception) {
+            Log::warning('Discord race result notification failed.', [
+                'channel_id' => $channelId,
+                'error' => $exception->getMessage(),
+            ]);
+
             return false;
         }
     }

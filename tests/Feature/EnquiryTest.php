@@ -50,6 +50,7 @@ class EnquiryTest extends TestCase
     public function test_discord_admin_can_accept_a_driver_and_send_the_welcome_email_once(): void
     {
         Mail::fake();
+        Queue::fake();
         Http::fake(['discord.com/*' => Http::response(['id' => 'message-1'])]);
 
         $application = DriverApplication::create([

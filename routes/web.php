@@ -1,10 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Services\InstagramFeed;
-use App\Http\Controllers\EnquiryController;
+use App\Http\Controllers\DiscordAuthController;
 use App\Http\Controllers\DiscordInteractionController;
+use App\Http\Controllers\EnquiryController;
+use App\Http\Controllers\RaceResultController;
 use App\Http\Controllers\StintPlanController;
+use App\Services\InstagramFeed;
+use Illuminate\Support\Facades\Route;
 
 $drivers = fn () => collect([
     ['slug' => 'hayden-sweet', 'name' => 'Hayden Sweet', 'number' => '29', 'role' => 'Team Manager', 'country' => 'United Kingdom', 'image' => null, 'bio' => 'Father of two by day and sim racer by night. A GT3 specialist chasing precision, clean overtakes and the perfect lap.'],
@@ -26,6 +28,12 @@ Route::get('/', fn (InstagramFeed $instagram) => view('site', ['page' => 'home',
 Route::get('/join', fn () => view('site', ['page' => 'join']))->name('join');
 Route::post('/join', [EnquiryController::class, 'driver'])->middleware('throttle:5,10')->name('join.submit');
 Route::post('/discord/interactions', DiscordInteractionController::class)->middleware('throttle:60,1')->name('discord.interactions');
+Route::get('/auth/discord', [DiscordAuthController::class, 'redirect'])->middleware('throttle:20,1')->name('discord.login');
+Route::get('/auth/discord/callback', [DiscordAuthController::class, 'callback'])->middleware('throttle:20,1')->name('discord.callback');
+Route::post('/auth/discord/logout', [DiscordAuthController::class, 'logout'])->name('discord.logout');
+Route::get('/results', [RaceResultController::class, 'index'])->name('results');
+Route::post('/results', [RaceResultController::class, 'store'])->middleware('throttle:5,10')->name('results.submit');
+Route::get('/results/{raceResult}/image', [RaceResultController::class, 'image'])->name('results.image');
 Route::get('/partners', fn () => view('site', ['page' => 'partners']))->name('partners');
 Route::view('/stint-planner', 'stint-planner')->name('stint-planner');
 Route::post('/stint-planner/publish', [StintPlanController::class, 'publish'])->middleware('throttle:20,1')->name('stint-planner.publish');
@@ -43,7 +51,7 @@ Route::get('/stint-overlay/{token}/data', [StintPlanController::class, 'data'])-
 Route::get('/stint-availability/{token}', [StintPlanController::class, 'availability'])->name('stint-availability');
 Route::post('/stint-availability/{token}', [StintPlanController::class, 'saveAvailability'])->middleware('throttle:20,1')->name('stint-availability.save');
 Route::post('/partners', [EnquiryController::class, 'sponsor'])->middleware('throttle:5,10')->name('partners.submit');
-Route::get('/enquiry-received/{type}', fn (string $type) => in_array($type, ['driver', 'sponsor'], true)
+Route::get('/enquiry-received/{type}', fn (string $type) => in_array($type, ['driver', 'sponsor', 'race-result'], true)
     ? view('site', ['page' => 'thanks', 'enquiryType' => $type])
     : abort(404))->name('enquiry.thanks');
 Route::get('/gallery', fn () => view('site', ['page' => 'gallery', 'drivers' => $drivers(), 'articles' => $articles()]))->name('gallery');
