@@ -65,6 +65,7 @@ Race-result submissions use Discord OAuth2 with the `identify` scope. Configure 
 DISCORD_CLIENT_ID=your_discord_application_id
 DISCORD_CLIENT_SECRET=your_discord_application_secret
 DISCORD_REDIRECT_URI=https://your-domain.example/auth/discord/callback
+DISCORD_RESULTS_ADMIN_USER_ID=321560062231314443
 ```
 
 Add the exact `DISCORD_REDIRECT_URI` value to the OAuth2 redirect URLs for the same Discord application in the Discord Developer Portal. The existing bot token and public key configuration remain responsible for result notifications and signed approval-button interactions.

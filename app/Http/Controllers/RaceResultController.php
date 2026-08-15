@@ -85,4 +85,20 @@ class RaceResultController extends Controller
             ['Cache-Control' => 'public, max-age=86400'],
         );
     }
+
+    public function destroy(Request $request, RaceResult $raceResult): RedirectResponse
+    {
+        abort_unless(
+            hash_equals(
+                (string) config('services.discord.results_admin_user_id'),
+                (string) $request->session()->get('discord_user.id', ''),
+            ),
+            403,
+        );
+
+        Storage::disk('local')->delete($raceResult->image_path);
+        $raceResult->delete();
+
+        return redirect()->route('results')->with('result_deleted', 'Race result deleted.');
+    }
 }

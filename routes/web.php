@@ -33,6 +33,7 @@ Route::get('/auth/discord/callback', [DiscordAuthController::class, 'callback'])
 Route::post('/auth/discord/logout', [DiscordAuthController::class, 'logout'])->name('discord.logout');
 Route::get('/results', [RaceResultController::class, 'index'])->name('results');
 Route::post('/results', [RaceResultController::class, 'store'])->middleware('throttle:5,10')->name('results.submit');
+Route::delete('/results/{raceResult}', [RaceResultController::class, 'destroy'])->middleware('throttle:20,1')->name('results.destroy');
 Route::get('/results/{raceResult}/image', [RaceResultController::class, 'image'])->name('results.image');
 Route::get('/partners', fn () => view('site', ['page' => 'partners']))->name('partners');
 Route::view('/stint-planner', 'stint-planner')->name('stint-planner');
