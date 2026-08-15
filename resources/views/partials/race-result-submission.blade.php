@@ -18,7 +18,7 @@
                     <span>&#64;{{ session('discord_user.username') }} · {{ session('discord_user.id') }}</span>
                 </div>
             </div>
-            <form method="post" action="{{ route('results.submit') }}" enctype="multipart/form-data" class="enquiry-form">
+            <form id="race-result-form" method="post" action="{{ route('results.submit') }}" enctype="multipart/form-data" class="enquiry-form">
                 @csrf
                 @include('partials.form-errors')
                 <input class="form-trap" tabindex="-1" autocomplete="off" name="website">
@@ -34,12 +34,14 @@
                 </div>
                 <label>Team members<textarea name="team_members" rows="4" placeholder="One driver per line" required>{{ old('team_members') }}</textarea></label>
                 <label>Car image <small>JPG, PNG or WebP · maximum 10 MB</small><input type="file" name="car_image" accept="image/jpeg,image/png,image/webp" required></label>
-                <button class="button" type="submit">Send for approval →</button>
             </form>
-            <form method="post" action="{{ route('discord.logout') }}" class="discord-logout">
-                @csrf
-                <button type="submit">Sign out of Discord</button>
-            </form>
+            <div class="result-form-actions">
+                <button class="button result-submit-button" type="submit" form="race-result-form">Submit result →</button>
+                <form method="post" action="{{ route('discord.logout') }}" class="discord-logout">
+                    @csrf
+                    <button type="submit">Sign out</button>
+                </form>
+            </div>
         </div>
     @else
         <div class="discord-login-card">

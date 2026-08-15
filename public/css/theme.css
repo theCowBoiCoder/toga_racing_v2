@@ -931,10 +931,15 @@ footer { border-top: 3px solid #EDEDED; }
 }
 
 .discord-logout {
-    justify-self: start;
+    margin: 0;
 }
 
 .discord-logout button {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    padding: 0 6px;
+    appearance: none;
     border: 0;
     background: transparent;
     color: var(--muted);
@@ -942,7 +947,25 @@ footer { border-top: 3px solid #EDEDED; }
     font: 700 9px Montserrat, sans-serif;
     letter-spacing: .1em;
     text-decoration: underline;
+    text-underline-offset: 4px;
     text-transform: uppercase;
+    transition: color .2s ease;
+}
+
+.discord-logout button:hover,
+.discord-logout button:focus-visible {
+    color: #EDEDED;
+}
+
+.result-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.result-submit-button {
+    min-height: 48px;
+    padding: 0 22px;
 }
 
 @media (max-width: 650px) {
