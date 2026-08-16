@@ -57,6 +57,9 @@ Route::get('/enquiry-received/{type}', fn (string $type) => in_array($type, ['dr
     ? view('site', ['page' => 'thanks', 'enquiryType' => $type])
     : abort(404))->name('enquiry.thanks');
 Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery');
+Route::post('/gallery/images', [GalleryController::class, 'store'])
+    ->middleware('throttle:10,10')
+    ->name('gallery.store');
 Route::delete('/gallery/{image}', [GalleryController::class, 'destroy'])
     ->where('image', '[A-Za-z0-9._-]+')
     ->middleware('throttle:20,1')

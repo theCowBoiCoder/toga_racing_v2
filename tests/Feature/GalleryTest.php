@@ -2,12 +2,15 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 class GalleryTest extends TestCase
 {
     private string $testImage;
+
+    private array $uploadedImages = [];
 
     protected function setUp(): void
     {
@@ -20,6 +23,7 @@ class GalleryTest extends TestCase
     protected function tearDown(): void
     {
         File::delete($this->testImage);
+        File::delete($this->uploadedImages);
 
         parent::tearDown();
     }
@@ -59,5 +63,35 @@ class GalleryTest extends TestCase
             ->assertSessionHas('gallery_image_deleted');
 
         $this->assertFileDoesNotExist($this->testImage);
+    }
+
+    public function test_only_the_configured_discord_admin_can_upload_a_gallery_image(): void
+    {
+        config()->set('services.discord.results_admin_user_id', 'admin-123');
+        $before = File::glob(public_path('images/gallery/gallery-*'));
+
+        $this->withSession(['discord_user' => ['id' => 'someone-else']])
+            ->post(route('gallery.store'), ['gallery_image' => $this->pngUpload()])
+            ->assertForbidden();
+
+        $this->withSession(['discord_user' => ['id' => 'admin-123']])
+            ->post(route('gallery.store'), ['gallery_image' => $this->pngUpload()])
+            ->assertRedirect(route('gallery'))
+            ->assertSessionHas('gallery_image_uploaded');
+
+        $this->uploadedImages = array_values(array_diff(
+            File::glob(public_path('images/gallery/gallery-*')),
+            $before,
+        ));
+
+        $this->assertCount(1, $this->uploadedImages);
+        $this->assertFileExists($this->uploadedImages[0]);
+    }
+
+    private function pngUpload(): UploadedFile
+    {
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=');
+
+        return UploadedFile::fake()->createWithContent('gallery.png', $png);
     }
 }

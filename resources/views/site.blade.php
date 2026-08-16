@@ -53,13 +53,23 @@
             $isGalleryAdmin = $galleryAdminId !== '' && hash_equals($galleryAdminId, (string) session('discord_user.id', ''));
         @endphp
         @if($isGalleryAdmin)
-            <p class="gallery-admin-status">Signed in as {{ session('discord_user.display_name') }}. Delete controls are enabled.</p>
+            <p class="gallery-admin-status">Signed in as {{ session('discord_user.display_name') }}. Gallery management is enabled.</p>
             <form method="post" action="{{ route('discord.logout', ['return' => 'gallery']) }}" class="discord-logout gallery-logout">@csrf<button type="submit">Sign out of gallery management</button></form>
         @elseif(!session('discord_user.id'))
             <a class="button ghost gallery-admin-login" href="{{ route('discord.login', ['return' => 'gallery']) }}">Admin sign in with Discord</a>
         @endif
     </section>
-    @if(session('gallery_image_deleted'))<div class="result-alert gallery-alert">{{ session('gallery_image_deleted') }}</div>@endif
+    @if($isGalleryAdmin)
+        <section class="gallery-upload-panel">
+            <div><span class="kicker">GALLERY MANAGEMENT</span><h2>UPLOAD AN IMAGE</h2><p>JPG, PNG or WebP · maximum 10 MB</p></div>
+            <form method="post" action="{{ route('gallery.store') }}" enctype="multipart/form-data" class="gallery-upload-form">
+                @csrf
+                <label><span>Select image</span><input type="file" name="gallery_image" accept="image/jpeg,image/png,image/webp" required></label>
+                <button class="button" type="submit">Upload image →</button>
+            </form>
+        </section>
+    @endif
+    @if(session('gallery_image_deleted') || session('gallery_image_uploaded'))<div class="result-alert gallery-alert">{{ session('gallery_image_deleted') ?: session('gallery_image_uploaded') }}</div>@endif
     <section class="gallery">
         @forelse($galleryImages as $image)
             <figure>
