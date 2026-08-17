@@ -20,7 +20,9 @@ class RaceResultController extends Controller
             'page' => 'results',
             'raceResults' => RaceResult::query()
                 ->where('status', 'approved')
-                ->latest('approved_at')
+                ->orderByDesc('event_date')
+                ->orderByDesc('approved_at')
+                ->orderByDesc('id')
                 ->get(),
         ]);
     }

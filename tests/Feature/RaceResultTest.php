@@ -117,6 +117,29 @@ class RaceResultTest extends TestCase
             ->assertDontSee('Send for approval');
     }
 
+    public function test_approved_results_are_ordered_by_event_date_from_newest_to_oldest(): void
+    {
+        $this->createApprovedResult('oldest.png', [
+            'event_name' => 'Oldest Race',
+            'event_date' => '2026-01-10',
+            'approved_at' => now(),
+        ]);
+        $this->createApprovedResult('newest.png', [
+            'event_name' => 'Newest Race',
+            'event_date' => '2026-08-10',
+            'approved_at' => now()->subDays(2),
+        ]);
+        $this->createApprovedResult('middle.png', [
+            'event_name' => 'Middle Race',
+            'event_date' => '2026-05-10',
+            'approved_at' => now()->subDay(),
+        ]);
+
+        $this->get('/results')
+            ->assertOk()
+            ->assertSeeInOrder(['Newest Race', 'Middle Race', 'Oldest Race']);
+    }
+
     public function test_only_the_configured_discord_admin_can_delete_a_result_and_its_image(): void
     {
         Storage::fake('local');
@@ -190,9 +213,9 @@ class RaceResultTest extends TestCase
         ];
     }
 
-    private function createApprovedResult(string $path): RaceResult
+    private function createApprovedResult(string $path, array $overrides = []): RaceResult
     {
-        return RaceResult::create([
+        return RaceResult::create($overrides + [
             'event_name' => '24 Hours of Spa',
             'event_date' => '2026-08-10',
             'simulator' => 'iRacing',
